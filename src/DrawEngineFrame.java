@@ -1,13 +1,16 @@
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class DrawEngineFrame extends JFrame 
 {
@@ -138,12 +141,31 @@ public class DrawEngineFrame extends JFrame
     {
 		private static final long serialVersionUID = 1L;
 
-		private Color bufferedMap[][];
-		
+		private BufferedImage bufferedMap;
+		private Graphics2D graphic;
+
+		private BufferedImage catSprite;
+
 		public MapPanel()
 		{
-			if(map != null)
-				bufferedMap = new Color[map.length][map[0].length];
+			bufferedMap = new BufferedImage(LevelGenerator.MAP_WIDTH*TILE_SIZE,
+					LevelGenerator.MAP_HEIGHT*TILE_SIZE,
+					BufferedImage.TYPE_BYTE_INDEXED);
+			graphic = bufferedMap.createGraphics();
+
+			// Load Cat
+			try
+			{
+				catSprite = ImageIO.read(new File("res/cat_Sprite.png"));
+			}
+			catch (IOException e)
+			{
+				Graphics2D g2d = catSprite.createGraphics();
+
+				g2d.setColor(Color.red);
+				g2d.fillRect(0,0,TILE_SIZE, TILE_SIZE);
+				g2d.dispose();
+			}
 			drawMap();
 		}
 		
@@ -153,16 +175,9 @@ public class DrawEngineFrame extends JFrame
             super.paintComponent(g);
             
             /*Draw buffered map*/
-            for (int i = 0; i < LevelGenerator.MAP_HEIGHT; i++) {
-                for (int j = 0; j < LevelGenerator.MAP_WIDTH; j++)
-                {
-                	g.setColor(bufferedMap[i][j]);
-                	
-                	g.fillRect(j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                }
-            }
-                
-            
+			g.drawImage(bufferedMap, 0, 0, null);
+			g.drawImage(catSprite, 6*TILE_SIZE,6*TILE_SIZE, null);
+
         }
 	
 
@@ -181,7 +196,9 @@ public class DrawEngineFrame extends JFrame
         
         public void drawPoint(int x, int y, Color color)
         {
-        	bufferedMap[y][x] = color;
+        	graphic.setColor(color);
+			graphic.fillRect(x*TILE_SIZE, y*TILE_SIZE,
+					TILE_SIZE, TILE_SIZE);
         	repaint();
         }
         
@@ -203,10 +220,12 @@ public class DrawEngineFrame extends JFrame
         private void bufferPath(ArrayList<Position> path)
         {
         	if(path.isEmpty()) return;
-        	
-        	for(Position t : path)
+
+			graphic.setColor(Color.BLUE);
+			for(Position t : path)
         	{
-        		bufferedMap[t.getPosY()][t.getPosX()] = Color.BLUE;
+        		graphic.fillRect(t.getPosX()*TILE_SIZE, t.getPosY()*TILE_SIZE,
+						TILE_SIZE, TILE_SIZE);
         	}
         }
         
@@ -223,6 +242,8 @@ public class DrawEngineFrame extends JFrame
         
         private void bufferMap(Tile[][] map)
         {
+        	// create graphics ( to draw )
+
         	/* Draw Map */
             for (int i = 0; i < LevelGenerator.MAP_HEIGHT; i++) {
                 for (int j = 0; j < LevelGenerator.MAP_WIDTH; j++)
@@ -244,13 +265,13 @@ public class DrawEngineFrame extends JFrame
                             break;
                     }
                     
-                    // Draw Tile :  i for y (line) , j for x (column)  
-//                    g.setColor(tileColor);
-//                    g.fillRect(j*TILESIZE, i*TILESIZE, TILESIZE, TILESIZE);
-                    
-                    bufferedMap[i][j] = tileColor;
+                    // Draw Tile :  i for y (line) , j for x (column)
+
+                    graphic.setColor(tileColor);
+                    graphic.fillRect(j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE, TILE_SIZE);
                 }
             }
+			// ended
         }
         
 
