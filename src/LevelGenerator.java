@@ -9,8 +9,8 @@ public class LevelGenerator
     private final int MAP_HEIGHT_MIN = 10;
     private final int MAP_HEIGHT_MAX = 50;
 
-    public final int MAP_WIDTH;
-    public final int MAP_HEIGHT;
+    public static int MAP_WIDTH = 0;
+    public static int MAP_HEIGHT = 0;
 
     private final Position MOUSES_INITIAL_POS = new Position(-1,-1);
     private final Position CATS_INITIAL_POS = new Position(-1,-1);

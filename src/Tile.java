@@ -8,7 +8,10 @@ public enum Tile {
     EMPTY,
     WALL,
     MINE,
-    CHEESE;
+    CHEESE,
+    INVISIBLE_ZONE,
+    POWERUP_VISION,
+    POWERUP_SPEED;
     
 	private static Tile[] vals = values();
     

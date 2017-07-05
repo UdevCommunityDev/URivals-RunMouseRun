@@ -211,7 +211,8 @@ public class PathFinder {
                 {
                     neighbors.add(new Position(x + dx, y));
                 }
-                if (getNode(x, y + dy).pass || getNode(x + dx, y).pass)
+                // diagonale
+                if ((getNode(x, y + dy).pass || getNode(x + dx, y).pass) && getNode(x + dx, y + dy).pass)
                 {
                     neighbors.add(new Position(x + dx, y + dy));
                 }

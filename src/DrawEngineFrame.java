@@ -1,28 +1,26 @@
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class DrawEngineFrame extends JFrame 
 {
-	public static final int TILE_SIZE = 20;
+	public static int TILE_SIZE = 16;
 
 	private JPanel contentPane;
     private MapPanel mapPanel;
 	
 	
-	private LevelGenerator levelGenerator;
+	//private LevelGenerator levelGenerator;
 	PathFinder pathFinder;
 	private Tile[][] map;
+	private int mapWidth, mapHeight;
 	
 	/* For testing path finding */
 	private Position initialPos = new Position(2,2);
@@ -35,12 +33,11 @@ public class DrawEngineFrame extends JFrame
 	 * create buttons with ActionListeners :
 		* ClickListener on panel ( for map editor )
 		* ActionListeners on buttons
-	 * @param levelGenerator initialised LevelGenerator
+	 * @param map initialised LevelGenerator
 	 */
-	public DrawEngineFrame(LevelGenerator levelGenerator) 
+	public DrawEngineFrame(Tile[][] map)
 	{
-		this.levelGenerator = levelGenerator;
-		map = levelGenerator.getMap();
+		this.map = map;
 
 		pathFinder = new PathFinder();
 
@@ -53,9 +50,8 @@ public class DrawEngineFrame extends JFrame
 		mapPanel.addMouseListener(new MouseAdapter() 
 		{
 			/**
-			 * On LeftClick : change the tile to next 
-			 * On RightClick : Set InitialPosition ( testing pathfinding )
-			 * On MiddleClick : Set finalPosition ( testing pathfinding ) 
+			 * On LeftClick : Set InitialPosition ( testing pathfinding )
+			 * On RightClick : Set finalPosition ( testing pathfinding )
 			*/
 			@Override
 			public void mouseClicked(MouseEvent event) 
@@ -65,25 +61,22 @@ public class DrawEngineFrame extends JFrame
 				System.out.println("(" + i + "," + j +") = " + map[i][j]);
 				
 				if(event.getButton() == MouseEvent.BUTTON1)
-				{	
-					levelGenerator.switchTile(j, i);
-					mapPanel.drawMap();
-				}
-				else if(event.getButton() == MouseEvent.BUTTON2)
 				{
 					initialPos.setPosX(j);
 					initialPos.setPosY(i);
 					mapPanel.clear();
 				}
-				else 
+				else if(event.getButton() == MouseEvent.BUTTON2)
 				{
 					finalPos.setPosX(j);
 					finalPos.setPosY(i);
-					mapPanel.clear();				}
+					mapPanel.clear();
+				}
 			}
 		});
 		
 		contentPane.add(mapPanel, BorderLayout.CENTER);
+
 		/*Init Button Panels */
 		JPanel btnPanel = new JPanel();
 		contentPane.add(btnPanel, BorderLayout.SOUTH);
@@ -98,23 +91,43 @@ public class DrawEngineFrame extends JFrame
 		});
 		btnPanel.add(btnDrawShortest);
 		
-		JButton levelButton = new JButton("Level Map");
-		btnPanel.add(levelButton);
-		
-		JButton mouseButton = new JButton("Mouse Map");
-		btnPanel.add(mouseButton);
-		
-		JButton catButton = new JButton("Cat 1 Button");
-		btnPanel.add(catButton);
+		JComboBox<String> mapsCmBox = new JComboBox<>();
+
+		mapsCmBox.addItem("Level Map");
+		/*Add Mouses' maps*/
+		mapsCmBox.addItem("Mouse Map");
+		/*Add Cats' maps */
+		mapsCmBox.addItem("Cat Map");
+
+		btnPanel.add(mapsCmBox);
+
+		JButton switchMapButton = new JButton("Switch map");
+		btnPanel.add(switchMapButton);
+	}
+
+	private void switchToLevel()
+	{
+
+	}
+
+	private void switchToCatMap(int i)
+	{
+
+	}
+
+	private void switchToMouseMap(int i)
+	{
+
 	}
 
 	private void initWindow()
 	{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 70,
-                TILE_SIZE * levelGenerator.MAP_WIDTH + TILE_SIZE ,
-                TILE_SIZE * levelGenerator.MAP_HEIGHT + 100
+                TILE_SIZE * LevelGenerator.MAP_WIDTH + TILE_SIZE ,
+                TILE_SIZE * LevelGenerator.MAP_HEIGHT + 100
 		);
+		setResizable(false);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
@@ -140,8 +153,8 @@ public class DrawEngineFrame extends JFrame
             super.paintComponent(g);
             
             /*Draw buffered map*/
-            for (int i = 0; i < levelGenerator.MAP_HEIGHT; i++) {
-                for (int j = 0; j < levelGenerator.MAP_WIDTH; j++)
+            for (int i = 0; i < LevelGenerator.MAP_HEIGHT; i++) {
+                for (int j = 0; j < LevelGenerator.MAP_WIDTH; j++)
                 {
                 	g.setColor(bufferedMap[i][j]);
                 	
@@ -155,13 +168,13 @@ public class DrawEngineFrame extends JFrame
 
         /*Par defaut draw levelGenerator.map*/
         public void drawMap() {
-            drawMap(levelGenerator.getMap());
+            drawMap(map);
         }
         
         /*Takes a map, buffer it, and repaint it*/
-        public void drawMap(Tile[][] Map) {
-            map = levelGenerator.getMap();
-            bufferMap();
+        public void drawMap(Tile[][] Map)
+		{
+            bufferMap(map);
             bufferObjects();
             repaint();   
         }
@@ -174,7 +187,7 @@ public class DrawEngineFrame extends JFrame
         
         public void clear()
         {
-        	bufferMap();
+        	bufferMap(map);
         	bufferObjects();
         	repaint();
         }
@@ -208,11 +221,11 @@ public class DrawEngineFrame extends JFrame
 			drawPoint(finalPos.getPosX(), finalPos.getPosY(), Color.GREEN);
         }
         
-        private void bufferMap()
+        private void bufferMap(Tile[][] map)
         {
         	/* Draw Map */
-            for (int i = 0; i < levelGenerator.MAP_HEIGHT; i++) {
-                for (int j = 0; j < levelGenerator.MAP_WIDTH; j++)
+            for (int i = 0; i < LevelGenerator.MAP_HEIGHT; i++) {
+                for (int j = 0; j < LevelGenerator.MAP_WIDTH; j++)
                 {
                     // Choose tile color 
                     Color tileColor = Color.WHITE;
