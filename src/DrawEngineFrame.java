@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
 
 public class DrawEngineFrame extends JFrame 
 {
-	public static int TILE_SIZE = 24;
+	public static int TILE_SIZE = 24; // Must have a SpriteSheet{TileSize}.png in res/
 
 	private JPanel contentPane;
 	private JScrollPane mapContainerPanel;
@@ -160,6 +160,9 @@ public class DrawEngineFrame extends JFrame
 		private Graphics2D graphic;
 
 		// SpriteSheet
+		/*
+		* 0 : Empty, 1 : Mouse, 2 : Cat, 3 : Cheese, 4: Mine
+		*/
 		private ArrayList<BufferedImage> sprites;
 
 		public MapPanel()
@@ -185,7 +188,7 @@ public class DrawEngineFrame extends JFrame
 
 			try
 			{
-				File spriteSheetFile = new File("res/spriteSheet.png");
+				File spriteSheetFile = new File("res/spriteSheet"+TILE_SIZE+".png");
 				spriteSheet = ImageIO.read(spriteSheetFile);
 			}catch (IOException e)
 			{
@@ -213,7 +216,7 @@ public class DrawEngineFrame extends JFrame
             
             /*Draw buffered map*/
 			g.drawImage(bufferedMap, 0, 0, null);
-			g.drawImage(sprites.get(2), 8*TILE_SIZE,6*TILE_SIZE, null);
+			g.drawImage(sprites.get(1), 8*TILE_SIZE,6*TILE_SIZE, null);
 
         }
 	
@@ -295,16 +298,12 @@ public class DrawEngineFrame extends JFrame
                             graphic.drawImage(sprites.get(0),j*TILE_SIZE, i*TILE_SIZE, null);
                             break;
                         case MINE:
-                            tileColor = Color.RED;
-							// Draw Tile :  i for y (line) , j for x (column)
-							graphic.setColor(tileColor);
-							graphic.fillRect(j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE, TILE_SIZE);
+							graphic.drawImage(sprites.get(0),j*TILE_SIZE, i*TILE_SIZE, null);
+							graphic.drawImage(sprites.get(4),j*TILE_SIZE, i*TILE_SIZE, null);
                             break;
                         case CHEESE:
-                            tileColor = Color.YELLOW;
-							// Draw Tile :  i for y (line) , j for x (column)
-							graphic.setColor(tileColor);
-							graphic.fillRect(j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE, TILE_SIZE);
+							graphic.drawImage(sprites.get(0),j*TILE_SIZE, i*TILE_SIZE, null);
+							graphic.drawImage(sprites.get(3),j*TILE_SIZE, i*TILE_SIZE, null);
                             break;
                     }
                 }
