@@ -14,12 +14,13 @@ import javax.imageio.ImageIO;
 
 public class DrawEngineFrame extends JFrame 
 {
-	public static int TILE_SIZE = 16;
+	public static int TILE_SIZE = 24;
 
 	private JPanel contentPane;
+	private JScrollPane mapContainerPanel;
     private MapPanel mapPanel;
-	
-	
+	private JLabel mapName;
+
 	//private LevelGenerator levelGenerator;
 	PathFinder pathFinder;
 	private Tile[][] map;
@@ -47,9 +48,18 @@ public class DrawEngineFrame extends JFrame
 
 		initWindow();
 
+		/*Text Panel*/
+		JPanel textPanel = new JPanel();
+
+		mapName = new JLabel("Level Map");
+
+		contentPane.add(mapName, BorderLayout.NORTH);
 		/*Init Map Panel */
 		mapPanel = new MapPanel();
-		
+
+
+		mapContainerPanel = new JScrollPane(mapPanel);
+
 		mapPanel.addMouseListener(new MouseAdapter() 
 		{
 			/**
@@ -69,7 +79,7 @@ public class DrawEngineFrame extends JFrame
 					initialPos.setPosY(i);
 					mapPanel.clear();
 				}
-				else if(event.getButton() == MouseEvent.BUTTON2)
+				else if(event.getButton() == MouseEvent.BUTTON3)
 				{
 					finalPos.setPosX(j);
 					finalPos.setPosY(i);
@@ -77,8 +87,10 @@ public class DrawEngineFrame extends JFrame
 				}
 			}
 		});
-		
-		contentPane.add(mapPanel, BorderLayout.CENTER);
+
+		mapContainerPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		mapContainerPanel.getVerticalScrollBar().setUnitIncrement(10);
+		contentPane.add(mapContainerPanel, BorderLayout.CENTER);
 
 		/*Init Button Panels */
 		JPanel btnPanel = new JPanel();
@@ -106,6 +118,8 @@ public class DrawEngineFrame extends JFrame
 
 		JButton switchMapButton = new JButton("Switch map");
 		btnPanel.add(switchMapButton);
+
+		pack();
 	}
 
 	private void switchToLevel()
@@ -126,10 +140,16 @@ public class DrawEngineFrame extends JFrame
 	private void initWindow()
 	{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 70,
-                TILE_SIZE * LevelGenerator.MAP_WIDTH + TILE_SIZE ,
-                TILE_SIZE * LevelGenerator.MAP_HEIGHT + 100
-		);
+		setPreferredSize(new Dimension(
+				TILE_SIZE * LevelGenerator.MAP_WIDTH + TILE_SIZE + 10,
+				TILE_SIZE * LevelGenerator.MAP_HEIGHT
+		));
+
+		setMaximumSize(new Dimension(
+				TILE_SIZE * LevelGenerator.MAP_WIDTH + TILE_SIZE + 50,
+				800
+		));
+
 		setResizable(false);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -137,36 +157,58 @@ public class DrawEngineFrame extends JFrame
 		setContentPane(contentPane);
 	}
 	
-	class MapPanel extends JPanel 
+	class MapPanel extends JPanel
     {
 		private static final long serialVersionUID = 1L;
 
 		private BufferedImage bufferedMap;
 		private Graphics2D graphic;
 
-		private BufferedImage catSprite;
+		// SpriteSheet
+		private ArrayList<BufferedImage> sprites;
 
 		public MapPanel()
 		{
+			setPreferredSize(new Dimension(LevelGenerator.MAP_WIDTH*TILE_SIZE,
+					LevelGenerator.MAP_HEIGHT*TILE_SIZE));
+
+			/*init buffered Map */
 			bufferedMap = new BufferedImage(LevelGenerator.MAP_WIDTH*TILE_SIZE,
 					LevelGenerator.MAP_HEIGHT*TILE_SIZE,
 					BufferedImage.TYPE_BYTE_INDEXED);
 			graphic = bufferedMap.createGraphics();
 
-			// Load Cat
+			// Load Sprites
+			loadSprites();
+			// draw map
+			drawMap();
+		}
+
+		private void loadSprites()
+		{
+			BufferedImage spriteSheet;
+
 			try
 			{
-				catSprite = ImageIO.read(new File("res/cat_Sprite.png"));
-			}
-			catch (IOException e)
+				File spriteSheetFile = new File("res/spriteSheet.png");
+				spriteSheet = ImageIO.read(spriteSheetFile);
+			}catch (IOException e)
 			{
-				Graphics2D g2d = catSprite.createGraphics();
-
-				g2d.setColor(Color.red);
-				g2d.fillRect(0,0,TILE_SIZE, TILE_SIZE);
-				g2d.dispose();
+				System.err.println("Error loading Sprite sheet ");
+				// generate spriteSheet with colors
+				spriteSheet = new BufferedImage(TILE_SIZE, TILE_SIZE, BufferedImage.TYPE_BYTE_INDEXED);
+				/// TODO
 			}
-			drawMap();
+
+			// load each sprite
+			sprites = new ArrayList<>();
+
+			for(int i = 0; i < spriteSheet.getHeight()/TILE_SIZE; i++)
+			{
+				sprites.add(
+						spriteSheet.getSubimage(0,i*TILE_SIZE, TILE_SIZE, TILE_SIZE)
+				);
+			}
 		}
 		
 		@Override
@@ -176,7 +218,7 @@ public class DrawEngineFrame extends JFrame
             
             /*Draw buffered map*/
 			g.drawImage(bufferedMap, 0, 0, null);
-			g.drawImage(catSprite, 6*TILE_SIZE,6*TILE_SIZE, null);
+			g.drawImage(sprites.get(2), 8*TILE_SIZE,6*TILE_SIZE, null);
 
         }
 	
@@ -212,7 +254,6 @@ public class DrawEngineFrame extends JFrame
         public void drawPath(ArrayList<Position> path)
         {
         	bufferPath(path);
-        	
         	repaint();
         }
         
@@ -242,8 +283,6 @@ public class DrawEngineFrame extends JFrame
         
         private void bufferMap(Tile[][] map)
         {
-        	// create graphics ( to draw )
-
         	/* Draw Map */
             for (int i = 0; i < LevelGenerator.MAP_HEIGHT; i++) {
                 for (int j = 0; j < LevelGenerator.MAP_WIDTH; j++)
@@ -253,28 +292,29 @@ public class DrawEngineFrame extends JFrame
                     switch (map[i][j]) {
                         case WALL:
                             tileColor = Color.BLACK;
+							// Draw Tile :  i for y (line) , j for x (column)
+							graphic.setColor(tileColor);
+							graphic.fillRect(j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE, TILE_SIZE);
                             break;
                         case EMPTY:
-                            tileColor = Color.WHITE;
+                            graphic.drawImage(sprites.get(0),j*TILE_SIZE, i*TILE_SIZE, null);
                             break;
                         case MINE:
                             tileColor = Color.RED;
+							// Draw Tile :  i for y (line) , j for x (column)
+							graphic.setColor(tileColor);
+							graphic.fillRect(j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE, TILE_SIZE);
                             break;
                         case CHEESE:
                             tileColor = Color.YELLOW;
+							// Draw Tile :  i for y (line) , j for x (column)
+							graphic.setColor(tileColor);
+							graphic.fillRect(j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE, TILE_SIZE);
                             break;
                     }
-                    
-                    // Draw Tile :  i for y (line) , j for x (column)
-
-                    graphic.setColor(tileColor);
-                    graphic.fillRect(j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE, TILE_SIZE);
                 }
             }
 			// ended
         }
-        
-
-    }
-
-}
+    } // End of MapPanel
+}	// End Of DrawEngine
