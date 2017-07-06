@@ -19,7 +19,7 @@ public class DrawEngineFrame extends JFrame
 	private JPanel contentPane;
 	private JScrollPane mapContainerPanel;
 	private MapPanel mapPanel;
-	private JLabel mapName;
+	private JLabel mapName, timeLabel;
 
 	//private LevelGenerator levelGenerator;
 	PathFinder pathFinder;
@@ -48,13 +48,24 @@ public class DrawEngineFrame extends JFrame
 
 		initWindow();
 
-		/*Text Panel*/
+		/*=============================Text Panel ===============================*/
 		JPanel textPanel = new JPanel();
+		textPanel.setLayout(new BorderLayout(0,0));
+
+
+		timeLabel = new JLabel("Time : 00:00");
+		timeLabel.setFont(new Font("Calibri", Font.PLAIN, 18));
 
 		mapName = new JLabel("Level Map");
+		mapName.setFont(new Font("Calibri", Font.PLAIN, 18));
 
-		contentPane.add(mapName, BorderLayout.NORTH);
-		/*Init Map Panel */
+		textPanel.add(mapName, BorderLayout.WEST);
+		textPanel.add(timeLabel, BorderLayout.EAST);
+
+
+		contentPane.add(textPanel, BorderLayout.NORTH);
+
+		/* ===========================Init Map Panel ============================*/
 		mapPanel = new MapPanel();
 
 
@@ -62,7 +73,7 @@ public class DrawEngineFrame extends JFrame
 
 		mapPanel.addMouseListener(new MouseAdapter()
 		{
-			/**
+			/*
 			 * On LeftClick : Set InitialPosition ( testing pathfinding )
 			 * On RightClick : Set finalPosition ( testing pathfinding )
 			 */
@@ -92,10 +103,11 @@ public class DrawEngineFrame extends JFrame
 		mapContainerPanel.getVerticalScrollBar().setUnitIncrement(10);
 		contentPane.add(mapContainerPanel, BorderLayout.CENTER);
 
-		/*Init Button Panels */
+		/*==========================Init Button Panel==================================*/
 		JPanel btnPanel = new JPanel();
 		contentPane.add(btnPanel, BorderLayout.SOUTH);
 
+		// Draw Shortest Button
 		JButton btnDrawShortest = new JButton("Draw shortest");
 		btnDrawShortest.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
@@ -106,17 +118,40 @@ public class DrawEngineFrame extends JFrame
 		});
 		btnPanel.add(btnDrawShortest);
 
+		// Switch Map Checkbox+Button
 		JComboBox<String> mapsCmBox = new JComboBox<>();
 
 		mapsCmBox.addItem("Level Map");
 		/*Add Mouses' maps*/
-		mapsCmBox.addItem("Mouse Map");
+		mapsCmBox.addItem("Mouse 1 Map");
 		/*Add Cats' maps */
-		mapsCmBox.addItem("Cat Map");
+		mapsCmBox.addItem("Cat 1 Map");
 
 		btnPanel.add(mapsCmBox);
 
 		JButton switchMapButton = new JButton("Switch map");
+		switchMapButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String mapName = (String) mapsCmBox.getSelectedItem();
+
+				/*Name example : Cat 1 Map*/
+				String[] mapNameWords = mapName.split(" ");
+
+				switch(mapNameWords[0])
+				{
+					case "Level":
+						switchToLevelMap();
+						break;
+					case "Cat":
+						switchToCatMap(Integer.parseInt(mapNameWords[1])-1);	// -1 to get index
+						break;
+					case "Mouse":
+						switchToMouseMap(Integer.parseInt(mapNameWords[1])-1);	// -1 to get index
+						break;
+				}
+			}
+		});
 		btnPanel.add(switchMapButton);
 
 		// new Map button
@@ -132,19 +167,22 @@ public class DrawEngineFrame extends JFrame
 		btnPanel.add(newMapButton);
 	}
 
-	private void switchToLevel()
+	private void switchToLevelMap()
 	{
-
+		// map = GameManager.Cat.get(i).getMap();
+		update();
 	}
 
 	private void switchToCatMap(int i)
 	{
-
+		// map = GameManager.Cat.get(i).getMap();
+		update();
 	}
 
 	private void switchToMouseMap(int i)
 	{
-
+		// map = GameManager.Cat.get(i).getMap();
+		update();
 	}
 
 	private void initWindow()
@@ -167,7 +205,6 @@ public class DrawEngineFrame extends JFrame
 	public void update()
 	{
 		mapPanel.clear();
-		mapPanel.bufferCharacters();
 		mapPanel.repaint();
 	}
 
