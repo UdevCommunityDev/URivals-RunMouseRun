@@ -152,6 +152,10 @@ public class LevelGenerator
         return randomMap;
     }
 
+    /**
+     * keep generating random x, y coordinates until getting an empty position
+     * @return an Empty Position
+     */
     public Position getEmptyPos()
     {
         while (true)
@@ -160,7 +164,7 @@ public class LevelGenerator
             int x = ThreadLocalRandom.current().nextInt(0, MAP_WIDTH);
             int y = ThreadLocalRandom.current().nextInt(0, MAP_HEIGHT);
 
-            if (map[y][x] != Tile.WALL)
+            if (map[y][x] == Tile.EMPTY)
             {
                 return new Position(x, y);
             }
