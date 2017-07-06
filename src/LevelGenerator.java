@@ -1,3 +1,5 @@
+import javafx.geometry.Pos;
+
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -58,6 +60,8 @@ public class LevelGenerator
 
     /***
      * Set MOUSE, CATS and Cheese initial positions and checks if correct
+     * correct position : Path exists, space consists 70% of empty Tiles
+     * ... else regenerate a new map
      */
     private void setInitialPosition()
     {
@@ -79,6 +83,20 @@ public class LevelGenerator
             } while (!isPathOkay(MOUSES_INITIAL_POS, cheesePos));
             // path exists, we add the cheese to the map
             map[cheesePos.getPosY()][cheesePos.getPosX()] = Tile.CHEESE;
+        }
+
+        int cellCount = getEmptyCellCount(MOUSES_INITIAL_POS, new ArrayList<Position>());
+
+        if(cellCount < MAP_HEIGHT*MAP_WIDTH*WALL_PROBABILITY_THRESHOLD/100*2/3) // at least 70% of empty
+        {
+            // Generate map
+            map = generateRandomMap(MAP_WIDTH, MAP_HEIGHT);
+            // Set objects initial position
+            setInitialPosition();
+        }
+        else
+        {
+            System.out.println("OK");
         }
     }
 
@@ -153,6 +171,41 @@ public class LevelGenerator
         }
 
         return randomMap;
+    }
+
+    /**
+     *
+     * @param start any position in given space to count
+     * @param visited an empty ArrayList to keep track of visited nodes when visiting
+     * @return the number of tiles in that space
+     */
+    public int getEmptyCellCount(Position start, ArrayList<Position> visited)
+    {
+        boolean isOutOfBound = (start.getPosX() >= MAP_WIDTH || start.getPosX() < 0
+                                || start.getPosY() >= MAP_HEIGHT || start.getPosY() < 0);
+
+        boolean isWall = isOutOfBound || (map[start.getPosY()][start.getPosX()] == Tile.WALL);
+
+        boolean isVisited = false;
+        for(Position p : visited)
+            if(p.equals(start))
+                isVisited = true;
+
+        if(isOutOfBound || isWall || isVisited)
+        {
+            return 0;
+        }
+        else
+        {
+            visited.add(start);
+            return 1 +
+                    getEmptyCellCount(new Position(start.getPosX()+1, start.getPosY()), visited)
+                    + getEmptyCellCount(new Position(start.getPosX()-1, start.getPosY()), visited)
+                    + getEmptyCellCount(new Position(start.getPosX(), start.getPosY()+1), visited)
+                    + getEmptyCellCount(new Position(start.getPosX(), start.getPosY()-1), visited);
+        }
+
+
     }
 
     /**
