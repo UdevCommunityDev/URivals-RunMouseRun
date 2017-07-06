@@ -170,18 +170,21 @@ public class DrawEngineFrame extends JFrame
 	private void switchToLevelMap()
 	{
 		// map = GameManager.Cat.get(i).getMap();
+		mapName.setText("Level Map");
 		update();
 	}
 
 	private void switchToCatMap(int i)
 	{
 		// map = GameManager.Cat.get(i).getMap();
+		mapName.setText("Cat "+(i+1)+" Map");
 		update();
 	}
 
 	private void switchToMouseMap(int i)
 	{
 		// map = GameManager.Cat.get(i).getMap();
+		mapName.setText("Mouse "+(i+1)+" Map");
 		update();
 	}
 
