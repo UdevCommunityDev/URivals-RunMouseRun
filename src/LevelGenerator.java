@@ -2,7 +2,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class LevelGenerator
 {
-
     private final int MAP_WIDTH_MIN = 30;
     private final int MAP_WIDTH_MAX = 50;
 
@@ -12,8 +11,8 @@ public class LevelGenerator
     public static int MAP_WIDTH = 0;
     public static int MAP_HEIGHT = 0;
 
-    private static Position MOUSES_INITIAL_POS;
-    private static Position CATS_INITIAL_POS;
+    public static Position MOUSES_INITIAL_POS;
+    public static Position CATS_INITIAL_POS;
 
     private Tile[][] map;
 
@@ -26,9 +25,12 @@ public class LevelGenerator
 
     // IMPORTANT : MAZE[POS_Y][POS_X]
 
+    private PathFinder pathFinder;
 
     public LevelGenerator()
     {
+        pathFinder = new PathFinder();
+
         // nextInt is normally exclusive of the top value,
         // so we add 1 to make it inclusive
         this.MAP_WIDTH = ThreadLocalRandom.current().nextInt(MAP_WIDTH_MIN, MAP_WIDTH_MAX + 1);
@@ -38,6 +40,7 @@ public class LevelGenerator
         map = generateRandomMap(MAP_WIDTH, MAP_HEIGHT);
 
         // Set objects initial position
+        setInitialPosition();
 
     }
 
@@ -51,12 +54,50 @@ public class LevelGenerator
 
     }
 
-    public boolean existPath(Position source, Position Destination)
+    private void setInitialPosition()
     {
-        return false;
+        /* Set Mouse initial pos*/
+        do
+        {
+            MOUSES_INITIAL_POS = getEmptyPos();
+            CATS_INITIAL_POS = getEmptyPos();
+        }
+        while( !existPath(MOUSES_INITIAL_POS, CATS_INITIAL_POS)); // repeat until path exists
+
+        /*Spawn cheese*/
+        for (int i = 0; i < 3; i++) /// TODO : Use cat count here
+        {
+            Position cheesePos;
+            do{
+                cheesePos = getEmptyPos();
+            } while (!existPath(MOUSES_INITIAL_POS, cheesePos));
+            // path exists, we add the cheese to the map
+            map[cheesePos.getPosY()][cheesePos.getPosX()] = Tile.CHEESE;
+        }
     }
 
-    public Tile[][] generateRandomMap(int mapWidth, int mapHeight)
+    /**
+     * compute path using PathFinder
+     * @return true if path exists
+     */
+    public boolean existPath(Position source, Position destination)
+    {
+        if(source.equals(destination))
+            return true;
+
+        if(pathFinder.getShortestPath(map, source, destination).isEmpty())
+            return false;
+        else
+            return true;
+    }
+
+    /**
+    * Generates a map random using Probability constants
+     * @param mapHeight
+     * @param mapWidth
+     * @return map (Tile[][]) , the generated map ( doesn't modify this class' map )
+    */
+    private Tile[][] generateRandomMap(int mapWidth, int mapHeight)
     {
         Tile[][] randomMap = new Tile[MAP_HEIGHT][MAP_WIDTH];
         for(int i = 0; i < MAP_HEIGHT; i++)

@@ -27,7 +27,7 @@ public class PathFinder {
 
         if (!getNode(initialPos).pass || !getNode(finalPos).pass) // if it's unreachable ( a wall )
             return shortestPath;
-        
+
         solve();
         return shortestPath;
     }
