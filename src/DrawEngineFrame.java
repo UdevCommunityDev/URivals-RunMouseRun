@@ -119,6 +119,17 @@ public class DrawEngineFrame extends JFrame
 		JButton switchMapButton = new JButton("Switch map");
 		btnPanel.add(switchMapButton);
 
+		// new Map button
+		JButton newMapButton = new JButton("New Map");
+		newMapButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DrawEngineFrame newFrame = new DrawEngineFrame(map);
+
+				newFrame.setVisible(true);
+			}
+		});
+		btnPanel.add(newMapButton);
 	}
 
 	private void switchToLevel()
@@ -139,6 +150,7 @@ public class DrawEngineFrame extends JFrame
 	private void initWindow()
 	{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setTitle("Run Mouse Run!");
 
 		setSize(new Dimension(
 				TILE_SIZE * LevelGenerator.MAP_WIDTH + TILE_SIZE + 10,

@@ -292,7 +292,7 @@ public class PathFinder {
         {
             try
             {
-                trail.add(0, current.pos);
+                trail.add(current.pos);
             } catch (Exception e)
             {
                 // ;_;
@@ -300,6 +300,7 @@ public class PathFinder {
             }
             current = current.parent;
         }
+        trail.add(current.pos);
         //System.out.println("Path Trace Complete!");
         return connectPath(trail);
     }
