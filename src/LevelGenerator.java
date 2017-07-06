@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class LevelGenerator
@@ -13,6 +14,7 @@ public class LevelGenerator
 
     public static Position MOUSES_INITIAL_POS;
     public static Position CATS_INITIAL_POS;
+    private final static int INITIAL_MINIMUM_DISTANCE = 15; // minimum eloignés de 15 cases
 
     private Tile[][] map;
 
@@ -62,7 +64,8 @@ public class LevelGenerator
             MOUSES_INITIAL_POS = getEmptyPos();
             CATS_INITIAL_POS = getEmptyPos();
         }
-        while( !existPath(MOUSES_INITIAL_POS, CATS_INITIAL_POS)); // repeat until path exists
+        while( !existPath(MOUSES_INITIAL_POS, CATS_INITIAL_POS) // repeat until path exists
+                );  // And mouses and cats are far enough
 
         /*Spawn cheese*/
         for (int i = 0; i < 3; i++) /// TODO : Use cat count here
@@ -70,10 +73,23 @@ public class LevelGenerator
             Position cheesePos;
             do{
                 cheesePos = getEmptyPos();
-            } while (!existPath(MOUSES_INITIAL_POS, cheesePos));
+            } while (!isPathOkay(MOUSES_INITIAL_POS, cheesePos));
             // path exists, we add the cheese to the map
             map[cheesePos.getPosY()][cheesePos.getPosX()] = Tile.CHEESE;
         }
+    }
+
+    /**
+     * Checks if path exists, and distance is far enough ( >= INITIAL_MINIMUM_DISTANCE )
+     */
+    private boolean isPathOkay(Position Mouse, Position Cat)
+    {
+        ArrayList<Position> path = pathFinder.getShortestPath(map, Mouse, Cat);
+
+        if(path.isEmpty() || path.size() < INITIAL_MINIMUM_DISTANCE)
+            return false;
+        else
+            return true;
     }
 
     /**
