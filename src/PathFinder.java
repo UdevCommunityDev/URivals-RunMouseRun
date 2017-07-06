@@ -24,6 +24,10 @@ public class PathFinder {
     public ArrayList<Position> getShortestPath(Tile[][] map, Position initialPos, Position finalPos)
     {
         setupSolver(map, initialPos, finalPos);
+
+        if (!getNode(initialPos).pass || !getNode(finalPos).pass) // if it's unreachable ( a wall )
+            return shortestPath;
+        
         solve();
         return shortestPath;
     }
