@@ -56,6 +56,9 @@ public class LevelGenerator
 
     }
 
+    /***
+     * Set MOUSE, CATS and Cheese initial positions and checks if correct
+     */
     private void setInitialPosition()
     {
         /* Set Mouse initial pos*/
