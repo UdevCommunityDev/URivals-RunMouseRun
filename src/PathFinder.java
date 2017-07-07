@@ -1,3 +1,5 @@
+import javafx.geometry.Pos;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -24,6 +26,10 @@ public class PathFinder {
     public ArrayList<Position> getShortestPath(Tile[][] map, Position initialPos, Position finalPos)
     {
         setupSolver(map, initialPos, finalPos);
+
+        if (!getNode(initialPos).pass || !getNode(finalPos).pass) // if it's unreachable ( a wall )
+            return shortestPath;
+
         solve();
         return shortestPath;
     }
@@ -211,7 +217,8 @@ public class PathFinder {
                 {
                     neighbors.add(new Position(x + dx, y));
                 }
-                if (getNode(x, y + dy).pass || getNode(x + dx, y).pass)
+                // diagonale
+                if ((getNode(x, y + dy).pass || getNode(x + dx, y).pass) && getNode(x + dx, y + dy).pass)
                 {
                     neighbors.add(new Position(x + dx, y + dy));
                 }
@@ -272,6 +279,12 @@ public class PathFinder {
 
         return neighbors; //this returns the neighbors, you know ... 17 "if" à 2h du mat' is bad for health ...
     }
+
+    /**
+     * trace back the path from parent nodes
+     * @param current (Node) : the final position node ( current when finished JPS )
+     * @return connected traced Path ( apply connectPath to result trail )
+     */
     private ArrayList<Position> tracePath(Node current) {
         ArrayList<Position> trail = new ArrayList<Position>();
         //System.out.println("Tracing Back Path...");
@@ -279,7 +292,7 @@ public class PathFinder {
         {
             try
             {
-                trail.add(0, current.pos);
+                trail.add(current.pos);
             } catch (Exception e)
             {
                 // ;_;
@@ -287,10 +300,60 @@ public class PathFinder {
             }
             current = current.parent;
         }
+        trail.add(current.pos);
         //System.out.println("Path Trace Complete!");
-        return trail;
+        return connectPath(trail);
     }
 
+    /**
+     * Connect path by adding intermediate cases between jump points
+     * Reverse the path so that the first position is the initial
+     * @param path the tracePath
+     * @return connected path with initial position first
+     */
+    private ArrayList<Position> connectPath(ArrayList<Position> path)
+    {
+        ArrayList<Position> connectedPath = new ArrayList<>();
+
+        for(int i = 0; i < path.size()-1; i++)
+        {
+            // take two points
+            Position begin = path.get(i), end = path.get(i+1);
+
+            // add first point
+            connectedPath.add(begin);
+
+            // check if connected
+            if(Math.abs(begin.getPosX()-end.getPosX()) <= 1
+                    && Math.abs(begin.getPosY() - end.getPosY()) <= 1)
+            {
+                // add the next point
+                connectedPath.add(end);
+            }
+            else
+            {
+                /* find all intermediate points */
+                //get direction between points
+                int dx = (end.getPosX() - begin.getPosX()) / Math.max(Math.abs(end.getPosX() - begin.getPosX()), 1);    // max to not devide by 0
+                int dy = (end.getPosY() - begin.getPosY()) / Math.max(Math.abs(end.getPosY() - begin.getPosY()), 1);
+
+                // connect points
+                Position tmp = begin;   // start at initial pos
+                do
+                {
+                    tmp = new Position(
+                            tmp.getPosX() + dx, // add 0/1 step in direction of end node
+                            tmp.getPosY() + dy // add 0/1 step in direction of end node
+                    );
+                    connectedPath.add(tmp);    // add intermediate position
+
+                }while ( ! tmp.equals(end) && getNode(tmp).pass); // repeat until begin reaches end pos
+                // note : at the end of the loop, end is already added ( tmp == end )
+            }
+        }
+        // finally, return the path
+        return connectedPath;
+    }
     /**
      * jump method recursively searches in the direction of parent (px,py) to child, the current node (x,y).
      * It will stop and return its current position in three situations:

@@ -1,34 +1,38 @@
+import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class LevelGenerator
 {
-
-    private final int MAP_WIDTH_MIN = 10;
+    private final int MAP_WIDTH_MIN = 30;
     private final int MAP_WIDTH_MAX = 50;
 
-    private final int MAP_HEIGHT_MIN = 10;
+    private final int MAP_HEIGHT_MIN = 30;
     private final int MAP_HEIGHT_MAX = 50;
 
-    public final int MAP_WIDTH;
-    public final int MAP_HEIGHT;
+    public static int MAP_WIDTH = 0;
+    public static int MAP_HEIGHT = 0;
 
-    private final Position MOUSES_INITIAL_POS = new Position(-1,-1);
-    private final Position CATS_INITIAL_POS = new Position(-1,-1);
+    public static Position MOUSES_INITIAL_POS;
+    public static Position CATS_INITIAL_POS;
+    private final static int INITIAL_MINIMUM_DISTANCE = 15; // minimum eloignés de 15 cases
 
     private Tile[][] map;
 
     private final int WALL_PROBABILITY_THRESHOLD = 35;
     private final int POWERUP_VISION_PROBABILITY_THRESHOLD = WALL_PROBABILITY_THRESHOLD + 3;    // 3%
     private final int POWERUP_SPEED_PROBABILITY_THRESHOLD = POWERUP_VISION_PROBABILITY_THRESHOLD + 3; // 3%
-    private final int INVISIBLE_ZONE_PROBABILITY_THRESHOLD = POWERUP_SPEED_PROBABILITY_THRESHOLD + 6; // 6%
-    private final int MINE_PROBABILITY_THRESHOLD = INVISIBLE_ZONE_PROBABILITY_THRESHOLD + 6;  // 6%
+    private final int INVISIBLE_ZONE_PROBABILITY_THRESHOLD = POWERUP_SPEED_PROBABILITY_THRESHOLD + 3; // 6%
+    private final int MINE_PROBABILITY_THRESHOLD = INVISIBLE_ZONE_PROBABILITY_THRESHOLD + 3;  // 6%
     private final int EMPTY_PATH_PROBABILITY_THRESHOLD = 100;
 
     // IMPORTANT : MAZE[POS_Y][POS_X]
 
+    private PathFinder pathFinder;
 
     public LevelGenerator()
     {
+        pathFinder = new PathFinder();
+
         // nextInt is normally exclusive of the top value,
         // so we add 1 to make it inclusive
         this.MAP_WIDTH = ThreadLocalRandom.current().nextInt(MAP_WIDTH_MIN, MAP_WIDTH_MAX + 1);
@@ -36,6 +40,10 @@ public class LevelGenerator
 
         // Generate map
         map = generateRandomMap(MAP_WIDTH, MAP_HEIGHT);
+
+        // Set objects initial position
+        setInitialPosition();
+
     }
 
     public Tile[][] getMap()
@@ -48,12 +56,67 @@ public class LevelGenerator
 
     }
 
-    public boolean existPath(Position source, Position Destination)
+    /***
+     * Set MOUSE, CATS and Cheese initial positions and checks if correct
+     */
+    private void setInitialPosition()
     {
-        return false;
+        /* Set Mouse initial pos*/
+        do
+        {
+            MOUSES_INITIAL_POS = getEmptyPos();
+            CATS_INITIAL_POS = getEmptyPos();
+        }
+        while( !existPath(MOUSES_INITIAL_POS, CATS_INITIAL_POS) // repeat until path exists
+                );  // And mouses and cats are far enough
+
+        /*Spawn cheese*/
+        for (int i = 0; i < 3; i++) /// TODO : Use cat count here
+        {
+            Position cheesePos;
+            do{
+                cheesePos = getEmptyPos();
+            } while (!isPathOkay(MOUSES_INITIAL_POS, cheesePos));
+            // path exists, we add the cheese to the map
+            map[cheesePos.getPosY()][cheesePos.getPosX()] = Tile.CHEESE;
+        }
     }
 
-    public Tile[][] generateRandomMap(int mapWidth, int mapHeight)
+    /**
+     * Checks if path exists, and distance is far enough ( >= INITIAL_MINIMUM_DISTANCE )
+     */
+    private boolean isPathOkay(Position Mouse, Position Cat)
+    {
+        ArrayList<Position> path = pathFinder.getShortestPath(map, Mouse, Cat);
+
+        if(path.isEmpty() || path.size() < INITIAL_MINIMUM_DISTANCE)
+            return false;
+        else
+            return true;
+    }
+
+    /**
+     * compute path using PathFinder
+     * @return true if path exists
+     */
+    public boolean existPath(Position source, Position destination)
+    {
+        if(source.equals(destination))
+            return true;
+
+        if(pathFinder.getShortestPath(map, source, destination).isEmpty())
+            return false;
+        else
+            return true;
+    }
+
+    /**
+    * Generates a map random using Probability constants
+     * @param mapHeight
+     * @param mapWidth
+     * @return map (Tile[][]) , the generated map ( doesn't modify this class' map )
+    */
+    private Tile[][] generateRandomMap(int mapWidth, int mapHeight)
     {
         Tile[][] randomMap = new Tile[MAP_HEIGHT][MAP_WIDTH];
         for(int i = 0; i < MAP_HEIGHT; i++)
@@ -92,6 +155,10 @@ public class LevelGenerator
         return randomMap;
     }
 
+    /**
+     * keep generating random x, y coordinates until getting an empty position
+     * @return an Empty Position
+     */
     public Position getEmptyPos()
     {
         while (true)
@@ -100,7 +167,7 @@ public class LevelGenerator
             int x = ThreadLocalRandom.current().nextInt(0, MAP_WIDTH);
             int y = ThreadLocalRandom.current().nextInt(0, MAP_HEIGHT);
 
-            if (map[y][x] != Tile.WALL)
+            if (map[y][x] == Tile.EMPTY)
             {
                 return new Position(x, y);
             }
