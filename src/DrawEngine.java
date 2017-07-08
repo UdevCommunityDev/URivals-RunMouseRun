@@ -1,10 +1,7 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -120,7 +117,7 @@ public class DrawEngine extends JFrame
 		btnPanel.add(btnDrawShortest);
 
 		// Switch Map Checkbox+Button
-		JComboBox<String> mapsCmBox = new JComboBox<>();// TODO : Switch map with ComboBox
+		JComboBox<String> mapsCmBox = new JComboBox<>();
 
 		mapsCmBox.addItem("Level Map");
 		/*Add Mouses' maps*/
@@ -128,12 +125,9 @@ public class DrawEngine extends JFrame
 		/*Add Cats' maps */
 		mapsCmBox.addItem("Cat 1 Map");
 
-		btnPanel.add(mapsCmBox);
-
-		JButton switchMapButton = new JButton("Switch map");
-		switchMapButton.addActionListener(new ActionListener() {
+		mapsCmBox.addItemListener(new ItemListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void itemStateChanged(ItemEvent e) {
 				String mapName = (String) mapsCmBox.getSelectedItem();
 
 				/*Name example : Cat 1 Map*/
@@ -153,7 +147,7 @@ public class DrawEngine extends JFrame
 				}
 			}
 		});
-		btnPanel.add(switchMapButton);
+		btnPanel.add(mapsCmBox);
 
 		// new Map button
 		JButton newMapButton = new JButton("New Map");
