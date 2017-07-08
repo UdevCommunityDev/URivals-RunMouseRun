@@ -39,14 +39,14 @@ public class DrawEngine extends JFrame
 	 * ActionListeners on buttons
 	 * @param map initialised LevelGenerator
 	 */
-	public DrawEngine(Tile[][] map)
+	public DrawEngine(Tile[][] map)	/// TODO : Add Maps to parameters
 	{
 		this.map = map;
 
 		pathFinder = new PathFinder();
 
 
-		initWindow();
+		initWindow(); /// TODO : Add Start Game Button
 
 		/*=============================Text Panel ===============================*/
 		JPanel textPanel = new JPanel();
@@ -71,7 +71,7 @@ public class DrawEngine extends JFrame
 
 		mapContainerPanel = new JScrollPane(mapPanel);
 
-		mapPanel.addMouseListener(new MouseAdapter()
+		mapPanel.addMouseListener(new MouseAdapter()/// TODO : Map editor
 		{
 			/*
 			 * On LeftClick : Set InitialPosition ( testing pathfinding )
@@ -83,6 +83,7 @@ public class DrawEngine extends JFrame
 				int i = event.getY()/TILE_SIZE;
 				int j = event.getX()/TILE_SIZE;
 				System.out.println("(" + i + "," + j +") = " + map[i][j]);
+
 
 				if(event.getButton() == MouseEvent.BUTTON1)
 				{
@@ -119,7 +120,7 @@ public class DrawEngine extends JFrame
 		btnPanel.add(btnDrawShortest);
 
 		// Switch Map Checkbox+Button
-		JComboBox<String> mapsCmBox = new JComboBox<>();
+		JComboBox<String> mapsCmBox = new JComboBox<>();// TODO : Switch map with ComboBox
 
 		mapsCmBox.addItem("Level Map");
 		/*Add Mouses' maps*/
@@ -193,8 +194,7 @@ public class DrawEngine extends JFrame
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Run Mouse Run!");
 
-		/// TO DO : Check if height < 800
-		setSize(new Dimension(
+		setSize(new Dimension(		/// TODO : Check if height < 800
 				TILE_SIZE * LevelGenerator.MAP_WIDTH + TILE_SIZE + 10,
 				800
 		));
@@ -249,24 +249,26 @@ public class DrawEngine extends JFrame
 
 		private void loadSprites()
 		{
-			BufferedImage spriteSheet;
+			BufferedImage spriteSheet;	/// TODO : Sprites resizable
+
 
 			try
 			{
-				File spriteSheetFile = new File("res/spriteSheet"+TILE_SIZE+".png");
+				File spriteSheetFile = new File("res/spritesheet"+TILE_SIZE+".png");
 				spriteSheet = ImageIO.read(spriteSheetFile);
-			}catch (IOException e)
+			}catch (IOException e)		/// TODO Error checking when loading sprites
+
 			{
 				System.err.println("Error loading Sprite sheet ");
 				// generate spriteSheet with colors
 				spriteSheet = new BufferedImage(TILE_SIZE, TILE_SIZE, BufferedImage.TYPE_BYTE_INDEXED);
-				/// TODO
 			}
 
 			// load each sprite
 			sprites = new ArrayList<>();
 
-			for(int i = 0; i < spriteSheet.getHeight()/TILE_SIZE; i++)
+			for(int i = 0; i < spriteSheet.getHeight()/TILE_SIZE; i++)			//  TODO : Sprites Separated
+
 			{
 				sprites.add(
 						spriteSheet.getSubimage(0,i*TILE_SIZE, TILE_SIZE, TILE_SIZE)
@@ -363,13 +365,12 @@ public class DrawEngine extends JFrame
 			for (int i = 0; i < LevelGenerator.MAP_HEIGHT; i++) {
 				for (int j = 0; j < LevelGenerator.MAP_WIDTH; j++)
 				{
-					// Choose tile color
-					Color tileColor = Color.WHITE;
+					// Choose tile /// TODO : Consider WALL & NOT_DISCOVERED
+
 					switch (map[i][j]) {
 						case WALL:
-							tileColor = Color.BLACK;
 							// Draw Tile :  i for y (line) , j for x (column)
-							graphic.setColor(tileColor);
+							graphic.setColor(Color.BLACK);
 							graphic.fillRect(j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE, TILE_SIZE);
 							break;
 						case EMPTY:
