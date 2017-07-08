@@ -194,12 +194,22 @@ public class DrawEngine extends JFrame
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Run Mouse Run!");
 
-		setSize(new Dimension(		/// TODO : Check if height < 800
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        int winHeight = TILE_SIZE * LevelGenerator.MAP_HEIGHT + TILE_SIZE + 50;
+
+        System.out.println("PANEL HEIGHT : " + winHeight);
+        if(winHeight >= screenSize.getHeight() - 50)
+		    winHeight = (int) screenSize.getHeight() - 50;
+
+		setSize(new Dimension(
 				TILE_SIZE * LevelGenerator.MAP_WIDTH + TILE_SIZE + 10,
-				800
+                winHeight
 		));
 
-		setResizable(false);
+        System.out.println("FRAME HEIGHT : " + winHeight);
+
+        setResizable(false);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
