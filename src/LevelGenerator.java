@@ -1,5 +1,3 @@
-import javafx.geometry.Pos;
-
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -16,7 +14,7 @@ public class LevelGenerator
 
     public static Position MOUSES_INITIAL_POS;
     public static Position CATS_INITIAL_POS;
-    private final static int INITIAL_MINIMUM_DISTANCE = 15; // minimum eloignés de 15 cases
+    private final static int INITIAL_MINIMUM_DISTANCE = 5; // minimum eloignés de 15 cases
 
     private Tile[][] map;
 
@@ -71,7 +69,7 @@ public class LevelGenerator
             MOUSES_INITIAL_POS = getEmptyPos();
             CATS_INITIAL_POS = getEmptyPos();
         }
-        while( !existPath(MOUSES_INITIAL_POS, CATS_INITIAL_POS) // repeat until path exists
+        while( !isPathOkay(MOUSES_INITIAL_POS, CATS_INITIAL_POS) // repeat until path exists
                 );  // And mouses and cats are far enough
 
         /*Spawn cheese*/
@@ -80,7 +78,9 @@ public class LevelGenerator
             Position cheesePos;
             do{
                 cheesePos = getEmptyPos();
-            } while (!isPathOkay(MOUSES_INITIAL_POS, cheesePos));
+            } while (!existPath(MOUSES_INITIAL_POS, cheesePos) ||
+            map[cheesePos.getPosY()][cheesePos.getPosX()] == Tile.CHEESE);
+
             // path exists, we add the cheese to the map
             map[cheesePos.getPosY()][cheesePos.getPosX()] = Tile.CHEESE;
         }
@@ -174,7 +174,7 @@ public class LevelGenerator
     }
 
     /**
-     *
+     * Counts the number of reachable cells from a given start point
      * @param start any position in given space to count
      * @param visited an empty ArrayList to keep track of visited nodes when visiting
      * @return the number of tiles in that space
