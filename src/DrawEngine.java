@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 
-public class DrawEngineFrame extends JFrame
+public class DrawEngine extends JFrame
 {
 	public static int TILE_SIZE = 24; // Must have a SpriteSheet{TileSize}.png in res/
 
@@ -39,7 +39,7 @@ public class DrawEngineFrame extends JFrame
 	 * ActionListeners on buttons
 	 * @param map initialised LevelGenerator
 	 */
-	public DrawEngineFrame(Tile[][] map)
+	public DrawEngine(Tile[][] map)
 	{
 		this.map = map;
 
@@ -159,7 +159,7 @@ public class DrawEngineFrame extends JFrame
 		newMapButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DrawEngineFrame newFrame = new DrawEngineFrame(map);
+				DrawEngine newFrame = new DrawEngine(map);
 
 				newFrame.setVisible(true);
 			}
@@ -193,6 +193,7 @@ public class DrawEngineFrame extends JFrame
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Run Mouse Run!");
 
+		/// TO DO : Check if height < 800
 		setSize(new Dimension(
 				TILE_SIZE * LevelGenerator.MAP_WIDTH + TILE_SIZE + 10,
 				800

@@ -14,7 +14,7 @@ public class LevelGenerator
 
     public static Position MOUSES_INITIAL_POS;
     public static Position CATS_INITIAL_POS;
-    private final static int INITIAL_MINIMUM_DISTANCE = 15; // minimum eloignés de 15 cases
+    private final static int INITIAL_MINIMUM_DISTANCE = 5; // minimum eloignés de 15 cases
 
     private Tile[][] map;
 
@@ -58,6 +58,8 @@ public class LevelGenerator
 
     /***
      * Set MOUSE, CATS and Cheese initial positions and checks if correct
+     * correct position : Path exists, space consists 70% of empty Tiles
+     * ... else regenerate a new map
      */
     private void setInitialPosition()
     {
@@ -67,7 +69,7 @@ public class LevelGenerator
             MOUSES_INITIAL_POS = getEmptyPos();
             CATS_INITIAL_POS = getEmptyPos();
         }
-        while( !existPath(MOUSES_INITIAL_POS, CATS_INITIAL_POS) // repeat until path exists
+        while( !isPathOkay(MOUSES_INITIAL_POS, CATS_INITIAL_POS) // repeat until path exists
                 );  // And mouses and cats are far enough
 
         /*Spawn cheese*/
@@ -76,9 +78,25 @@ public class LevelGenerator
             Position cheesePos;
             do{
                 cheesePos = getEmptyPos();
-            } while (!isPathOkay(MOUSES_INITIAL_POS, cheesePos));
+            } while (!existPath(MOUSES_INITIAL_POS, cheesePos) ||
+            map[cheesePos.getPosY()][cheesePos.getPosX()] == Tile.CHEESE);
+
             // path exists, we add the cheese to the map
             map[cheesePos.getPosY()][cheesePos.getPosX()] = Tile.CHEESE;
+        }
+
+        int cellCount = getEmptyCellCount(MOUSES_INITIAL_POS, new ArrayList<Position>());
+
+        if(cellCount < MAP_HEIGHT*MAP_WIDTH*WALL_PROBABILITY_THRESHOLD/100*2/3) // at least 70% of empty
+        {
+            // Generate map
+            map = generateRandomMap(MAP_WIDTH, MAP_HEIGHT);
+            // Set objects initial position
+            setInitialPosition();
+        }
+        else
+        {
+            System.out.println("OK");
         }
     }
 
@@ -101,7 +119,7 @@ public class LevelGenerator
      */
     public boolean existPath(Position source, Position destination)
     {
-        if(source.equals(destination))
+        if(Position.comparePosition(source, destination))
             return true;
 
         if(pathFinder.getShortestPath(map, source, destination).isEmpty())
@@ -153,6 +171,41 @@ public class LevelGenerator
         }
 
         return randomMap;
+    }
+
+    /**
+     * Counts the number of reachable cells from a given start point
+     * @param start any position in given space to count
+     * @param visited an empty ArrayList to keep track of visited nodes when visiting
+     * @return the number of tiles in that space
+     */
+    public int getEmptyCellCount(Position start, ArrayList<Position> visited)
+    {
+        boolean isOutOfBound = (start.getPosX() >= MAP_WIDTH || start.getPosX() < 0
+                                || start.getPosY() >= MAP_HEIGHT || start.getPosY() < 0);
+
+        boolean isWall = isOutOfBound || (map[start.getPosY()][start.getPosX()] == Tile.WALL);
+
+        boolean isVisited = false;
+        for(Position p : visited)
+            if(Position.comparePosition(p,start))
+                isVisited = true;
+
+        if(isOutOfBound || isWall || isVisited)
+        {
+            return 0;
+        }
+        else
+        {
+            visited.add(start);
+            return 1 +
+                    getEmptyCellCount(new Position(start.getPosX()+1, start.getPosY()), visited)
+                    + getEmptyCellCount(new Position(start.getPosX()-1, start.getPosY()), visited)
+                    + getEmptyCellCount(new Position(start.getPosX(), start.getPosY()+1), visited)
+                    + getEmptyCellCount(new Position(start.getPosX(), start.getPosY()-1), visited);
+        }
+
+
     }
 
     /**
