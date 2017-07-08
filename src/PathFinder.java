@@ -114,7 +114,7 @@ public class PathFinder {
         {
             current = heap.pop();   //the current node is removed from the heap.
 
-            if (current.pos.equals(finalPos))
+            if (Position.comparePosition(current.pos, finalPos))
             {   //if the end node is found
                 shortestPath = tracePath(current);    // traceBack from final node ( with parent ) until initial
                 break;   //loop is done ... yay !
@@ -347,7 +347,7 @@ public class PathFinder {
                     );
                     connectedPath.add(tmp);    // add intermediate position
 
-                }while ( ! tmp.equals(end) && getNode(tmp).pass); // repeat until begin reaches end pos
+                }while ( ! Position.comparePosition(tmp, end) && getNode(tmp).pass); // repeat until begin reaches end pos
                 // note : at the end of the loop, end is already added ( tmp == end )
             }
         }
@@ -381,7 +381,7 @@ public class PathFinder {
         { //if this space is not grid.walkable, return a null.
             return null;
         }
-        if (neighbor.equals(finalPos))
+        if (Position.comparePosition(neighbor,finalPos))
         {   //if end point, return that point. The search is over! YAY xD
             return neighbor;
         }

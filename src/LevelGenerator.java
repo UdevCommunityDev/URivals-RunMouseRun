@@ -119,7 +119,7 @@ public class LevelGenerator
      */
     public boolean existPath(Position source, Position destination)
     {
-        if(source.equals(destination))
+        if(Position.comparePosition(source, destination))
             return true;
 
         if(pathFinder.getShortestPath(map, source, destination).isEmpty())
@@ -188,7 +188,7 @@ public class LevelGenerator
 
         boolean isVisited = false;
         for(Position p : visited)
-            if(p.equals(start))
+            if(Position.comparePosition(p,start))
                 isVisited = true;
 
         if(isOutOfBound || isWall || isVisited)
