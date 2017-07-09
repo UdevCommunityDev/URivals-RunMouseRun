@@ -33,13 +33,14 @@ public class DrawEngine extends JFrame
 
 	/**
 	 * Create the frame.
-	 * get date from Level
+	 * adds Map
 	 * create buttons with ActionListeners :
 	 * ClickListener on panel ( for map editor )
 	 * ActionListeners on buttons
-	 * @param map initialised run_mouse_run.LevelGenerator
+	 * init cmCheckBox
+	 * @param map initialised map from LevelGenerator
 	 */
-	public DrawEngine(Map map)	/// TODO : Add Maps to parameters
+	public DrawEngine(Map map)
 	{
 		maps = new ArrayList<>();
 		maps.add(map); // don't use addMap() because cmBox is null /// TODO : Check if empty
@@ -47,24 +48,33 @@ public class DrawEngine extends JFrame
 		pathFinder = new PathFinder();
 
 
-		initWindow(); /// TODO : Add Start Game Button
+		initWindow();
 
 		/*=============================Text Panel ===============================*/
-		JPanel textPanel = new JPanel();
-		textPanel.setLayout(new BorderLayout(0,0));
-
-
-		timeLabel = new JLabel("Time : 00:00");
-		timeLabel.setFont(new Font("Calibri", Font.PLAIN, 18));
+		JPanel topPanel = new JPanel();
+		topPanel.setLayout(new BorderLayout(0,0));
 
 		mapName = new JLabel("Level Map");
 		mapName.setFont(new Font("Calibri", Font.PLAIN, 18));
 
-		textPanel.add(mapName, BorderLayout.WEST);
-		textPanel.add(timeLabel, BorderLayout.EAST);
+		JButton startGameButton = new JButton("Start Game");
+
+		startGameButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				/// TODO : Start game actions
+			}
+		});
+
+		timeLabel = new JLabel("Time : 00:00");
+		timeLabel.setFont(new Font("Calibri", Font.PLAIN, 18));
+
+		topPanel.add(mapName, BorderLayout.WEST);
+		topPanel.add(startGameButton, BorderLayout.CENTER);
+		topPanel.add(timeLabel, BorderLayout.EAST);
 
 
-		contentPane.add(textPanel, BorderLayout.NORTH);
+		contentPane.add(topPanel, BorderLayout.NORTH);
 
 		/* ===========================Init run_mouse_run.Map Panel ============================*/
 		mapPanel = new MapPanel(map);
@@ -72,7 +82,7 @@ public class DrawEngine extends JFrame
 
 		mapContainerPanel = new JScrollPane(mapPanel);
 
-		mapPanel.addMouseListener(new MouseAdapter()/// TODO : run_mouse_run.Map editor
+		mapPanel.addMouseListener(new MouseAdapter()
 		{
 			/*
 			 * On LeftClick : Set InitialPosition ( testing pathfinding )
@@ -95,6 +105,11 @@ public class DrawEngine extends JFrame
 					finalPos.setPosX(j);
 					finalPos.setPosY(i);
 					mapPanel.clear();
+				}
+				else if(event.getButton() == MouseEvent.BUTTON2)
+				{
+					maps.get(0).switchTile(j, i);
+					update();
 				}
 			}
 		});
@@ -141,7 +156,7 @@ public class DrawEngine extends JFrame
 		btnPanel.add(mapsCmBox);
 
 		// new run_mouse_run.Map button
-		JButton newMapButton = new JButton("New run_mouse_run.Map");
+		JButton newMapButton = new JButton("New Map");
 		newMapButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

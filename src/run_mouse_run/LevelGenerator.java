@@ -75,7 +75,7 @@ public class LevelGenerator
                 );  // And mouses and cats are far enough
 
         /*Spawn cheese*/
-        for (int i = 0; i < 3; i++) /// TODO : Use cat count here
+        for (int i = 0; i < GameManager.CATS_NUMBER; i++)
         {
             Position cheesePos;
             do{
