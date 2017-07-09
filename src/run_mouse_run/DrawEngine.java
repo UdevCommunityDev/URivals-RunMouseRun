@@ -228,11 +228,13 @@ public class DrawEngine extends JFrame
 		private BufferedImage bufferedMap;
 		private Graphics2D graphic;
 
-		// SpriteSheet
-		/*
-		* 0 : Empty, 1 : Mouse, 2 : Cat, 3 : Cheese, 4: Mine
-		*/
-		private ArrayList<BufferedImage> sprites;
+        /*
+        * Sprites : 0 : Cat , 1 : Mouse
+        * Ordered as marked in Tile class :
+         * 2 : NOT_DISCOVERED, 3: EMPTY, 4 : WALL , 5 : CHEESE, 6 : POWERUP_VISION,
+         * 7 : POWERUP_SPEED, 8: INVISIBLE_ZONE, 9 : Mine
+        */
+        private ArrayList<BufferedImage> sprites;
 
 		public MapPanel(Map map)
 		{
@@ -263,31 +265,39 @@ public class DrawEngine extends JFrame
 
 		private void loadSprites()
 		{
-			BufferedImage spriteSheet;	/// TODO : Sprites resizable
+			/// TODO : Sprites resizable
+
+            /*Load sprites files */
+            sprites = new ArrayList<>();
+
+            final String[] fileNames = {
+                    "cat_Sprite.png",
+                    "mouse_sprite.png",
+                    "not_discovered_sprite.png",
+                    "empty_sprite.png",
+                    "wall_sprite.png",
+                    "cheese_sprite.png",
+                    "powerup_speed_sprite.png",
+                    "powerup_vision_sprite.png",
+                    "invisible_zone_sprite.png",
+                    "mine_sprite.png"
+            };
 
 
-			try
-			{
-				File spriteSheetFile = new File("res/spritesheet"+TILE_SIZE+".png");
-				spriteSheet = ImageIO.read(spriteSheetFile);
-			}catch (IOException e)		/// TODO Error checking when loading sprites
+            for(int i = 0; i < fileNames.length; i++)
+            {
+                try
+                {
+                    File spriteFile = new File("res/"+fileNames[i]);
+                    sprites.add(ImageIO.read(spriteFile));
+                } catch (IOException e)
+                {
+                    System.err.println("Error loading Sprite : " + fileNames[i]);
+                    // generate spriteSheet with colors
+                    sprites.add(new BufferedImage(TILE_SIZE, TILE_SIZE, BufferedImage.TYPE_BYTE_INDEXED));
+                }
+            }
 
-			{
-				System.err.println("Error loading Sprite sheet ");
-				// generate spriteSheet with colors
-				spriteSheet = new BufferedImage(TILE_SIZE, TILE_SIZE, BufferedImage.TYPE_BYTE_INDEXED);
-			}
-
-			// load each sprite
-			sprites = new ArrayList<>();
-
-			for(int i = 0; i < spriteSheet.getHeight()/TILE_SIZE; i++)			//  TODO : Sprites Separated
-
-			{
-				sprites.add(
-						spriteSheet.getSubimage(0,i*TILE_SIZE, TILE_SIZE, TILE_SIZE)
-				);
-			}
 		}
 
 		@Override
@@ -348,7 +358,7 @@ public class DrawEngine extends JFrame
 					null);
 
 			// cats
-			graphic.drawImage(sprites.get(2),
+			graphic.drawImage(sprites.get(0),
 					LevelGenerator.CATS_INITIAL_POS.getPosX()*TILE_SIZE,
 					LevelGenerator.CATS_INITIAL_POS.getPosY()*TILE_SIZE,
 					null);
@@ -379,26 +389,41 @@ public class DrawEngine extends JFrame
 			for (int i = 0; i < LevelGenerator.MAP_HEIGHT; i++) {
 				for (int j = 0; j < LevelGenerator.MAP_WIDTH; j++)
 				{
-					// Choose tile /// TODO : Consider WALL & NOT_DISCOVERED
+					// Choose tile
 
 					switch (map.getTile(j, i)) {
-						case WALL:
-							// Draw run_mouse_run.Tile :  i for y (line) , j for x (column)
-							graphic.setColor(Color.BLACK);
-							graphic.fillRect(j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE, TILE_SIZE);
-							break;
-						case EMPTY:
-							graphic.drawImage(sprites.get(0),j*TILE_SIZE, i*TILE_SIZE, null);
-							break;
-						case MINE:
-							graphic.drawImage(sprites.get(0),j*TILE_SIZE, i*TILE_SIZE, null);
-							graphic.drawImage(sprites.get(4),j*TILE_SIZE, i*TILE_SIZE, null);
-							break;
-						case CHEESE:
-							graphic.drawImage(sprites.get(0),j*TILE_SIZE, i*TILE_SIZE, null);
-							graphic.drawImage(sprites.get(3),j*TILE_SIZE, i*TILE_SIZE, null);
-							break;
-					}
+
+                        case NOT_DISCOVERED:
+                            graphic.drawImage(sprites.get(2),j*TILE_SIZE, i*TILE_SIZE, null);
+                            break;
+                        case EMPTY:
+                            graphic.drawImage(sprites.get(3),j*TILE_SIZE, i*TILE_SIZE, null);
+                            break;
+                        case WALL:
+                            graphic.drawImage(sprites.get(4),j*TILE_SIZE, i*TILE_SIZE, null);
+                            break;
+                            /*From here, draw empty first then object on it : */
+                        case CHEESE:
+                            graphic.drawImage(sprites.get(3),j*TILE_SIZE, i*TILE_SIZE, null);
+                            graphic.drawImage(sprites.get(5),j*TILE_SIZE, i*TILE_SIZE, null);
+                            break;
+                        case POWERUP_VISION:
+                            graphic.drawImage(sprites.get(3),j*TILE_SIZE, i*TILE_SIZE, null);
+                            graphic.drawImage(sprites.get(6),j*TILE_SIZE, i*TILE_SIZE, null);
+                            break;
+                        case POWERUP_SPEED:
+                            graphic.drawImage(sprites.get(3),j*TILE_SIZE, i*TILE_SIZE, null);
+                            graphic.drawImage(sprites.get(7),j*TILE_SIZE, i*TILE_SIZE, null);
+                            break;
+                        case INVISIBLE_ZONE:
+                            graphic.drawImage(sprites.get(3),j*TILE_SIZE, i*TILE_SIZE, null);
+                            graphic.drawImage(sprites.get(8),j*TILE_SIZE, i*TILE_SIZE, null);
+                            break;
+                        case MINE:
+                            graphic.drawImage(sprites.get(3),j*TILE_SIZE, i*TILE_SIZE, null);
+                            graphic.drawImage(sprites.get(9),j*TILE_SIZE, i*TILE_SIZE, null);
+                            break;
+                    }
 				}
 			}
 			// ended

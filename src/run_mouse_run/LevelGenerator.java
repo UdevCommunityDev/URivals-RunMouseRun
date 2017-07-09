@@ -152,15 +152,15 @@ public class LevelGenerator
                 }
                 else if (randomNum < POWERUP_VISION_PROBABILITY_THRESHOLD)
                 {
-                    randomMap.setTile(j, i, Tile.EMPTY);
+                    randomMap.setTile(j, i, Tile.POWERUP_VISION);
                 }
                 else if (randomNum < POWERUP_SPEED_PROBABILITY_THRESHOLD)
                 {
-                    randomMap.setTile(j, i, Tile.EMPTY);
+                    randomMap.setTile(j, i, Tile.POWERUP_SPEED);
                 }
                 else if(randomNum < INVISIBLE_ZONE_PROBABILITY_THRESHOLD)
                 {
-                    randomMap.setTile(j, i, Tile.EMPTY);
+                    randomMap.setTile(j, i, Tile.INVISIBLE_ZONE);
                 }
                 else if(randomNum < MINE_PROBABILITY_THRESHOLD)
                 {
