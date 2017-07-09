@@ -13,8 +13,8 @@ import javax.imageio.ImageIO;
 
 public class DrawEngine extends JFrame
 {
-	public static int TILE_SIZE = 48; // Tiles will resize to this value
-
+	public static int TILE_SIZE = 24; // Tiles will resize to this value
+  
 	private JPanel contentPane;
 	private JScrollPane mapContainerPanel;
 	private MapPanel mapPanel;
