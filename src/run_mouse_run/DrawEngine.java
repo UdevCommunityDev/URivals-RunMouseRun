@@ -13,7 +13,7 @@ import javax.imageio.ImageIO;
 
 public class DrawEngine extends JFrame
 {
-	public static int TILE_SIZE = 24; // Tiles will resize to this value
+	public static int TILE_SIZE = 24; // Must have a SpriteSheet{TileSize}.png in res/
 
 	private JPanel contentPane;
 	private JScrollPane mapContainerPanel;
@@ -43,19 +43,7 @@ public class DrawEngine extends JFrame
 	public DrawEngine(Map map)
 	{
 		maps = new ArrayList<>();
-		if(map == null)
-		{
-			map = new Map("Blank map", LevelGenerator.MAP_WIDTH, LevelGenerator.MAP_HEIGHT);
-
-			for(int i = 0; i < LevelGenerator.MAP_HEIGHT; i++)
-			{
-				for(int j = 0; j < LevelGenerator.MAP_WIDTH; j++)
-				{
-					map.setTile(j, i, Tile.NOT_DISCOVERED);
-				}
-			}
-		}
-		maps.add(map); // don't use addMap() because cmBox is null
+		maps.add(map); // don't use addMap() because cmBox is null /// TODO : Check if empty
 
 		pathFinder = new PathFinder();
 
@@ -74,7 +62,7 @@ public class DrawEngine extends JFrame
 		startGameButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				/// TODO : Start game button actions
+				/// TODO : Start game actions
 			}
 		});
 
@@ -140,7 +128,7 @@ public class DrawEngine extends JFrame
 			public void actionPerformed(ActionEvent arg0)
 			{
 				//pathFinder = new run_mouse_run.PathFinder();
-				mapPanel.drawPath(pathFinder.getShortestPath(maps.get(0), initialPos, finalPos));
+				mapPanel.drawPath(pathFinder.getShortestPath(map, initialPos, finalPos));
 			}
 		});
 		btnPanel.add(btnDrawShortest);
@@ -172,19 +160,12 @@ public class DrawEngine extends JFrame
 		newMapButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DrawEngine newFrame = new DrawEngine(maps);
+				DrawEngine newFrame = new DrawEngine(map);
 
 				newFrame.setVisible(true);
 			}
 		});
 		btnPanel.add(newMapButton);
-	}
-
-	public DrawEngine(ArrayList<Map> maps)
-	{
-		this(maps.get(0));
-		for(int i = 1; i < maps.size(); i++)
-			addMap(maps.get(i));
 	}
 
 	public void addMap(Map map)
@@ -232,7 +213,7 @@ public class DrawEngine extends JFrame
 		setContentPane(contentPane);
 	}
 
-	public void update() /// TODO : draw cat computed path
+	public void update()
 	{
 		mapPanel.clear();
 		mapPanel.repaint();
@@ -284,6 +265,8 @@ public class DrawEngine extends JFrame
 
 		private void loadSprites()
 		{
+			/// TODO : Sprites resizable
+
             /*Load sprites files */
             sprites = new ArrayList<>();
 
@@ -305,62 +288,16 @@ public class DrawEngine extends JFrame
             {
                 try
                 {
-                	// Load file
                     File spriteFile = new File("res/"+fileNames[i]);
-                    // Read image
-                    BufferedImage sprite = ImageIO.read(spriteFile);
-                    // resize
-					sprite = resizeImage(sprite, TILE_SIZE, TILE_SIZE);
-					//add to sprites
-                    sprites.add(sprite);
+                    sprites.add(ImageIO.read(spriteFile));
                 } catch (IOException e)
                 {
                     System.err.println("Error loading Sprite : " + fileNames[i]);
-                    // generate a black tile
+                    // generate spriteSheet with colors
                     sprites.add(new BufferedImage(TILE_SIZE, TILE_SIZE, BufferedImage.TYPE_BYTE_INDEXED));
                 }
             }
 
-		}
-
-		public BufferedImage resizeImage (BufferedImage image, int areaWidth, int areaHeight) {
-			float scaleX = (float) areaWidth / image.getWidth();
-			float scaleY = (float) areaHeight / image.getHeight();
-			float scale = Math.min(scaleX, scaleY);
-			int w = Math.round(image.getWidth() * scale);
-			int h = Math.round(image.getHeight() * scale);
-
-			int type = image.getTransparency() == Transparency.OPAQUE ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
-
-			boolean scaleDown = scale < 1;
-
-			if (scaleDown) {
-				// multi-pass bilinear div 2
-				int currentW = image.getWidth();
-				int currentH = image.getHeight();
-				BufferedImage resized = image;
-				while (currentW > w || currentH > h) {
-					currentW = Math.max(w, currentW / 2);
-					currentH = Math.max(h, currentH / 2);
-
-					BufferedImage temp = new BufferedImage(currentW, currentH, type);
-					Graphics2D g2 = temp.createGraphics();
-					g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-					g2.drawImage(resized, 0, 0, currentW, currentH, null);
-					g2.dispose();
-					resized = temp;
-				}
-				return resized;
-			} else {
-				Object hint = scale > 2 ? RenderingHints.VALUE_INTERPOLATION_BICUBIC : RenderingHints.VALUE_INTERPOLATION_BILINEAR;
-
-				BufferedImage resized = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-				Graphics2D g2 = resized.createGraphics();
-				g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint);
-				g2.drawImage(image, 0, 0, w, h, null);
-				g2.dispose();
-				return resized;
-			}
 		}
 
 		@Override
