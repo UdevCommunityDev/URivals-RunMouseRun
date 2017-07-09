@@ -6,7 +6,7 @@ package run_mouse_run;
  */
 public enum Tile {
 
-    NOT_DISCOVERED, EMPTY, WALL, CHEESE, POWERUP_VISION, POWERUP_SPEED, INVISIBLE_ZONE, MINE;
+    NOT_DISCOVERED, EMPTY, WALL, CHEESE, POWERUP_VISION, POWERUP_SPEED, INVISIBLE_ZONE, MINE, CAT, MOUSE;
 
     private static Tile[] vals = values();
 

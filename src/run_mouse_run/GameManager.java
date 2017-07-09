@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 
-public class GameManager   /// TODO : access GameManager with static Vs references
+public class GameManager
 {
     public static final int CATS_NUMBER = 2;
     public static final int MOUSES_NUMBER = 1;
@@ -15,14 +15,14 @@ public class GameManager   /// TODO : access GameManager with static Vs referenc
     private final LevelGenerator level;
     private final PhysicsEngine physicsEngine;
     private final DrawEngine frame;
-    private final Timer timer;
+    private final CustomTimer timer;
 
-    public GameManager()
+    private GameManager()
     {
         level = new LevelGenerator();
         physicsEngine = new PhysicsEngine();
         frame = new DrawEngine(level.getMap());
-        timer = new Timer();
+        timer = new CustomTimer();
     }
 
     private void startGame() throws Exception
@@ -34,12 +34,13 @@ public class GameManager   /// TODO : access GameManager with static Vs referenc
 
         // Check instantiated characters number
         //if(cats.size() != CATS_NUMBER || mouses.size() != MOUSES_NUMBER)
-           // throw new Exception("Not enough characters instantiated");
+        // throw new Exception("Not enough characters instantiated");
 
         // Display game
         frame.setVisible(true);
 
-        // Start run_mouse_run.Timer
+        // Start Timer
+        timer.startTimer();
     }
 
     public static void main(String[] args)
@@ -62,7 +63,7 @@ public class GameManager   /// TODO : access GameManager with static Vs referenc
     }
 
 
-    public void stopGame(String result, String characterName)
+    public static void stopGame(String result, String characterName)
     {
         switch (result)
         {
@@ -70,7 +71,7 @@ public class GameManager   /// TODO : access GameManager with static Vs referenc
                 break;
             case "Mouse Lose":
                 break;
-            case "Everybody Lose":
+            case "Everybody Lose": System.out.print("Looooser");
                 break;
             case "Cat Win":
                 break;
