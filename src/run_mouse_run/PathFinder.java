@@ -1,12 +1,11 @@
-import javafx.geometry.Pos;
+package run_mouse_run;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
 
 public class PathFinder {
-    private Tile[][] map = null;   // Map given by LevelGenerator
+    private Map map = null;   // run_mouse_run.Map given by run_mouse_run.LevelGenerator
     private Node[][] grid = null;  // map on which we apply the search
 
     private Position initialPos = new Position(0, 0), finalPos = new Position(0, 0);
@@ -23,7 +22,7 @@ public class PathFinder {
         cleanSolver();
     }
 
-    public ArrayList<Position> getShortestPath(Tile[][] map, Position initialPos, Position finalPos)
+    public ArrayList<Position> getShortestPath(Map map, Position initialPos, Position finalPos)
     {
         setupSolver(map, initialPos, finalPos);
 
@@ -51,15 +50,15 @@ public class PathFinder {
         shortestPath.clear();
     }
 
-    private void setupSolver(Tile[][] map, Position initialPos, Position finalPos)
+    private void setupSolver(Map map, Position initialPos, Position finalPos)
     {
         cleanSolver();
         try
         {
             /*affect values to attributes*/
             this.map = map;
-            mapHeight = map.length;
-            mapWidth = map[0].length;
+            mapHeight = map.height;
+            mapWidth = map.width;
             this.initialPos = initialPos;
             this.finalPos = finalPos;
 
@@ -89,7 +88,7 @@ public class PathFinder {
                 grid[i][j] = new Node(j, i); // j is x, i is y
                 grid[i][j].f = -1;          // init distance to null
 
-                if (map[i][j] == Tile.WALL)
+                if (map.getTile(j, i) == Tile.WALL)
                     grid[i][j].setPass(false);
                 else
                     grid[i][j].setPass(true);
@@ -362,9 +361,9 @@ public class PathFinder {
      * 2) The current node is a forced neighbor.
      * 3) The current node is an intermediate step to a node that satisfies either 1) or 2)
      *
-     * @param neighbor (Position) current node
-     * @param parent   (Position) current.parent
-     * @return Position of node which satisfies one of the conditions above, or null if no such node is found.
+     * @param neighbor (run_mouse_run.Position) current node
+     * @param parent   (run_mouse_run.Position) current.parent
+     * @return run_mouse_run.Position of node which satisfies one of the conditions above, or null if no such node is found.
      */
     private Position jump(Position neighbor, Position parent) {
         Position jx = null; //used to later check if full or null
@@ -434,7 +433,7 @@ public class PathFinder {
      * returns all adjacent nodes that can be traversed
      *
      * @param node (Node) finds the neighbors of this node
-     * @return (ArrayList<Position>) list of neighbors that can be traversed
+     * @return (ArrayList<run_mouse_run.Position>) list of neighbors that can be traversed
      */
     private ArrayList<Position> getNeighbors(Node node) {
         ArrayList<Position> neighbors = new ArrayList<>();

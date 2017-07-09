@@ -1,3 +1,5 @@
+package run_mouse_run;
+
 public class Position
 {
     private int posX;

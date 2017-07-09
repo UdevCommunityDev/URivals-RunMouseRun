@@ -1,3 +1,5 @@
+package run_mouse_run;
+
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -16,7 +18,7 @@ public class LevelGenerator
     public static Position CATS_INITIAL_POS;
     private final static int INITIAL_MINIMUM_DISTANCE = 5; // minimum eloignés de 15 cases
 
-    private Tile[][] map;
+    private Map map;
 
     private final int WALL_PROBABILITY_THRESHOLD = 35;
     private final int POWERUP_VISION_PROBABILITY_THRESHOLD = WALL_PROBABILITY_THRESHOLD + 3;    // 3%
@@ -46,7 +48,7 @@ public class LevelGenerator
 
     }
 
-    public Tile[][] getMap()
+    public Map getMap()
     {
         return map;
     }
@@ -73,16 +75,16 @@ public class LevelGenerator
                 );  // And mouses and cats are far enough
 
         /*Spawn cheese*/
-        for (int i = 0; i < 3; i++) /// TODO : Use cat count here
+        for (int i = 0; i < GameManager.CATS_NUMBER; i++)
         {
             Position cheesePos;
             do{
                 cheesePos = getEmptyPos();
             } while (!existPath(MOUSES_INITIAL_POS, cheesePos) ||
-            map[cheesePos.getPosY()][cheesePos.getPosX()] == Tile.CHEESE);
+            map.getTile(cheesePos.getPosX(), cheesePos.getPosY()) == Tile.CHEESE);
 
             // path exists, we add the cheese to the map
-            map[cheesePos.getPosY()][cheesePos.getPosX()] = Tile.CHEESE;
+            map.setTile(cheesePos.getPosX(), cheesePos.getPosY(), Tile.CHEESE);
         }
 
         int cellCount = getEmptyCellCount(MOUSES_INITIAL_POS, new ArrayList<Position>());
@@ -114,7 +116,7 @@ public class LevelGenerator
     }
 
     /**
-     * compute path using PathFinder
+     * compute path using run_mouse_run.PathFinder
      * @return true if path exists
      */
     public boolean existPath(Position source, Position destination)
@@ -132,11 +134,12 @@ public class LevelGenerator
     * Generates a map random using Probability constants
      * @param mapHeight
      * @param mapWidth
-     * @return map (Tile[][]) , the generated map ( doesn't modify this class' map )
+     * @return map (Map) , the generated map ( doesn't modify this class' map )
     */
-    private Tile[][] generateRandomMap(int mapWidth, int mapHeight)
+    private Map generateRandomMap(int mapWidth, int mapHeight)
     {
-        Tile[][] randomMap = new Tile[MAP_HEIGHT][MAP_WIDTH];
+        Map randomMap = new Map("Level Map", MAP_WIDTH, MAP_HEIGHT);
+
         for(int i = 0; i < MAP_HEIGHT; i++)
         {
             for(int j = 0; j < MAP_WIDTH; j++)
@@ -145,27 +148,27 @@ public class LevelGenerator
 
                 if(randomNum < WALL_PROBABILITY_THRESHOLD)
                 {
-                    randomMap[i][j] = Tile.WALL;
+                    randomMap.setTile(j, i, Tile.WALL);
                 }
                 else if (randomNum < POWERUP_VISION_PROBABILITY_THRESHOLD)
                 {
-                    randomMap[i][j] = Tile.EMPTY;  // what's vision ?
+                    randomMap.setTile(j, i, Tile.POWERUP_VISION);
                 }
                 else if (randomNum < POWERUP_SPEED_PROBABILITY_THRESHOLD)
                 {
-                    randomMap[i][j] = Tile.EMPTY;  // Speed
+                    randomMap.setTile(j, i, Tile.POWERUP_SPEED);
                 }
                 else if(randomNum < INVISIBLE_ZONE_PROBABILITY_THRESHOLD)
                 {
-                    randomMap[i][j] = Tile.EMPTY;  // invisible
+                    randomMap.setTile(j, i, Tile.INVISIBLE_ZONE);
                 }
                 else if(randomNum < MINE_PROBABILITY_THRESHOLD)
                 {
-                    randomMap[i][j] = Tile.MINE;
+                    randomMap.setTile(j, i, Tile.MINE);
                 }
                 else
                 {
-                    randomMap[i][j] = Tile.EMPTY;
+                    randomMap.setTile(j, i, Tile.EMPTY);
                 }
             }
         }
@@ -184,7 +187,7 @@ public class LevelGenerator
         boolean isOutOfBound = (start.getPosX() >= MAP_WIDTH || start.getPosX() < 0
                                 || start.getPosY() >= MAP_HEIGHT || start.getPosY() < 0);
 
-        boolean isWall = isOutOfBound || (map[start.getPosY()][start.getPosX()] == Tile.WALL);
+        boolean isWall = isOutOfBound || (map.getTile(start.getPosX(), start.getPosY()) == Tile.WALL);
 
         boolean isVisited = false;
         for(Position p : visited)
@@ -210,7 +213,7 @@ public class LevelGenerator
 
     /**
      * keep generating random x, y coordinates until getting an empty position
-     * @return an Empty Position
+     * @return an Empty run_mouse_run.Position
      */
     public Position getEmptyPos()
     {
@@ -220,18 +223,11 @@ public class LevelGenerator
             int x = ThreadLocalRandom.current().nextInt(0, MAP_WIDTH);
             int y = ThreadLocalRandom.current().nextInt(0, MAP_HEIGHT);
 
-            if (map[y][x] == Tile.EMPTY)
+            if (map.getTile(x, y) == Tile.EMPTY)
             {
                 return new Position(x, y);
             }
         }
     }
-
-    public void switchTile(int x, int y)
-    {
-        map[y][x] = map[y][x].next();
-    }
-
-
 
 }

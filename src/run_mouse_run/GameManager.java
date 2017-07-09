@@ -1,3 +1,5 @@
+package run_mouse_run;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -37,7 +39,7 @@ public class GameManager
         // Display game
         frame.setVisible(true);
 
-        // Start Timer
+        // Start run_mouse_run.Timer
     }
 
     public static void main(String[] args)
