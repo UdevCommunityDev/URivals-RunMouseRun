@@ -18,10 +18,9 @@ public class DrawEngine extends JFrame
 	private MapPanel mapPanel;
 	private JLabel mapName, timeLabel;
 
-	//private LevelGenerator levelGenerator;
+
 	PathFinder pathFinder;
-	private Tile[][] map;
-	private int mapWidth, mapHeight;
+	private Map map;
 
 	/* For testing path finding */
 	private Position initialPos = new Position(2,2);
@@ -36,7 +35,7 @@ public class DrawEngine extends JFrame
 	 * ActionListeners on buttons
 	 * @param map initialised LevelGenerator
 	 */
-	public DrawEngine(Tile[][] map)	/// TODO : Add Maps to parameters
+	public DrawEngine(Map map)	/// TODO : Add Maps to parameters
 	{
 		this.map = map;
 
@@ -79,8 +78,6 @@ public class DrawEngine extends JFrame
 			{
 				int i = event.getY()/TILE_SIZE;
 				int j = event.getX()/TILE_SIZE;
-				System.out.println("(" + i + "," + j +") = " + map[i][j]);
-
 
 				if(event.getButton() == MouseEvent.BUTTON1)
 				{
@@ -165,21 +162,21 @@ public class DrawEngine extends JFrame
 	private void switchToLevelMap()
 	{
 		// map = GameManager.Cat.get(i).getMap();
-		mapName.setText("Level Map");
+		mapName.setText(map.name);
 		update();
 	}
 
 	private void switchToCatMap(int i)
 	{
 		// map = GameManager.Cat.get(i).getMap();
-		mapName.setText("Cat "+(i+1)+" Map");
+		mapName.setText(map.name);
 		update();
 	}
 
 	private void switchToMouseMap(int i)
 	{
 		// map = GameManager.Cat.get(i).getMap();
-		mapName.setText("Mouse "+(i+1)+" Map");
+		mapName.setText(map.name);
 		update();
 	}
 
@@ -292,7 +289,7 @@ public class DrawEngine extends JFrame
 
 		public void clear()
 		{
-			bufferMap(map);
+			bufferMap();
 			bufferObjects();
 			bufferCharacters();
 			repaint();
@@ -303,7 +300,7 @@ public class DrawEngine extends JFrame
 		/*Takes the DrawEngin map, buffer it, add objects and repaint it*/
 		public void drawMap()
 		{
-			bufferMap(map);
+			bufferMap();
 			bufferObjects();
 			bufferCharacters();
 			repaint();
@@ -363,7 +360,7 @@ public class DrawEngine extends JFrame
 			drawPoint(finalPos.getPosX(), finalPos.getPosY(), Color.GREEN);
 		}
 
-		private void bufferMap(Tile[][] map)
+		private void bufferMap()
 		{
         	/* Draw Map */
 			for (int i = 0; i < LevelGenerator.MAP_HEIGHT; i++) {
@@ -371,7 +368,7 @@ public class DrawEngine extends JFrame
 				{
 					// Choose tile /// TODO : Consider WALL & NOT_DISCOVERED
 
-					switch (map[i][j]) {
+					switch (map.getTile(j, i)) {
 						case WALL:
 							// Draw Tile :  i for y (line) , j for x (column)
 							graphic.setColor(Color.BLACK);

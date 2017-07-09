@@ -6,7 +6,7 @@ import java.util.LinkedList;
 
 
 public class PathFinder {
-    private Tile[][] map = null;   // Map given by LevelGenerator
+    private Map map = null;   // Map given by LevelGenerator
     private Node[][] grid = null;  // map on which we apply the search
 
     private Position initialPos = new Position(0, 0), finalPos = new Position(0, 0);
@@ -23,7 +23,7 @@ public class PathFinder {
         cleanSolver();
     }
 
-    public ArrayList<Position> getShortestPath(Tile[][] map, Position initialPos, Position finalPos)
+    public ArrayList<Position> getShortestPath(Map map, Position initialPos, Position finalPos)
     {
         setupSolver(map, initialPos, finalPos);
 
@@ -51,15 +51,15 @@ public class PathFinder {
         shortestPath.clear();
     }
 
-    private void setupSolver(Tile[][] map, Position initialPos, Position finalPos)
+    private void setupSolver(Map map, Position initialPos, Position finalPos)
     {
         cleanSolver();
         try
         {
             /*affect values to attributes*/
             this.map = map;
-            mapHeight = map.length;
-            mapWidth = map[0].length;
+            mapHeight = map.height;
+            mapWidth = map.width;
             this.initialPos = initialPos;
             this.finalPos = finalPos;
 
@@ -89,7 +89,7 @@ public class PathFinder {
                 grid[i][j] = new Node(j, i); // j is x, i is y
                 grid[i][j].f = -1;          // init distance to null
 
-                if (map[i][j] == Tile.WALL)
+                if (map.getTile(j, i) == Tile.WALL)
                     grid[i][j].setPass(false);
                 else
                     grid[i][j].setPass(true);
