@@ -13,7 +13,7 @@ import javax.imageio.ImageIO;
 
 public class DrawEngine extends JFrame
 {
-	public static int TILE_SIZE = 24; // Must have a SpriteSheet{TileSize}.png in res/
+	public static int TILE_SIZE = 24; // Tiles will resize to this value
 
 	private JPanel contentPane;
 	private JScrollPane mapContainerPanel;
@@ -284,8 +284,6 @@ public class DrawEngine extends JFrame
 
 		private void loadSprites()
 		{
-			/// TODO : Sprites resizable
-
             /*Load sprites files */
             sprites = new ArrayList<>();
 
