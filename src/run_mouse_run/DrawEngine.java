@@ -1,3 +1,5 @@
+package run_mouse_run;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -17,10 +19,12 @@ public class DrawEngine extends JFrame
 	private JScrollPane mapContainerPanel;
 	private MapPanel mapPanel;
 	private JLabel mapName, timeLabel;
+	private JComboBox<String> mapsCmBox;
 
 
 	PathFinder pathFinder;
-	private Map map;
+
+	private ArrayList<Map> maps;
 
 	/* For testing path finding */
 	private Position initialPos = new Position(2,2);
@@ -33,11 +37,12 @@ public class DrawEngine extends JFrame
 	 * create buttons with ActionListeners :
 	 * ClickListener on panel ( for map editor )
 	 * ActionListeners on buttons
-	 * @param map initialised LevelGenerator
+	 * @param map initialised run_mouse_run.LevelGenerator
 	 */
 	public DrawEngine(Map map)	/// TODO : Add Maps to parameters
 	{
-		this.map = map;
+		maps = new ArrayList<>();
+		maps.add(map); // don't use addMap() because cmBox is null /// TODO : Check if empty
 
 		pathFinder = new PathFinder();
 
@@ -61,13 +66,13 @@ public class DrawEngine extends JFrame
 
 		contentPane.add(textPanel, BorderLayout.NORTH);
 
-		/* ===========================Init Map Panel ============================*/
-		mapPanel = new MapPanel();
+		/* ===========================Init run_mouse_run.Map Panel ============================*/
+		mapPanel = new MapPanel(map);
 
 
 		mapContainerPanel = new JScrollPane(mapPanel);
 
-		mapPanel.addMouseListener(new MouseAdapter()/// TODO : Map editor
+		mapPanel.addMouseListener(new MouseAdapter()/// TODO : run_mouse_run.Map editor
 		{
 			/*
 			 * On LeftClick : Set InitialPosition ( testing pathfinding )
@@ -107,47 +112,36 @@ public class DrawEngine extends JFrame
 		btnDrawShortest.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 			{
-				//pathFinder = new PathFinder();
+				//pathFinder = new run_mouse_run.PathFinder();
 				mapPanel.drawPath(pathFinder.getShortestPath(map, initialPos, finalPos));
 			}
 		});
 		btnPanel.add(btnDrawShortest);
 
-		// Switch Map Checkbox+Button
-		JComboBox<String> mapsCmBox = new JComboBox<>();
+		// Switch run_mouse_run.Map Checkbox+Button
+		mapsCmBox = new JComboBox<>();
 
-		mapsCmBox.addItem("Level Map");
-		/*Add Mouses' maps*/
-		mapsCmBox.addItem("Mouse 1 Map");
-		/*Add Cats' maps */
-		mapsCmBox.addItem("Cat 1 Map");
+		mapsCmBox.addItem(map.name);
 
 		mapsCmBox.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				String mapName = (String) mapsCmBox.getSelectedItem();
 
-				/*Name example : Cat 1 Map*/
-				String[] mapNameWords = mapName.split(" ");
-
-				switch(mapNameWords[0])
+				// find map
+				for(Map m : maps)
 				{
-					case "Level":
-						switchToLevelMap();
-						break;
-					case "Cat":
-						switchToCatMap(Integer.parseInt(mapNameWords[1])-1);	// -1 to get index
-						break;
-					case "Mouse":
-						switchToMouseMap(Integer.parseInt(mapNameWords[1])-1);	// -1 to get index
-						break;
+					if(m.name == mapName)
+					{
+						switchToMap(m);
+					}
 				}
 			}
 		});
 		btnPanel.add(mapsCmBox);
 
-		// new Map button
-		JButton newMapButton = new JButton("New Map");
+		// new run_mouse_run.Map button
+		JButton newMapButton = new JButton("New run_mouse_run.Map");
 		newMapButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -159,23 +153,20 @@ public class DrawEngine extends JFrame
 		btnPanel.add(newMapButton);
 	}
 
-	private void switchToLevelMap()
+	public void addMap(Map map)
 	{
-		// map = GameManager.Cat.get(i).getMap();
-		mapName.setText(map.name);
-		update();
+		maps.add(map);
+		mapsCmBox.addItem(map.name);
 	}
 
-	private void switchToCatMap(int i)
+	public void removeMap(Map map)
 	{
-		// map = GameManager.Cat.get(i).getMap();
-		mapName.setText(map.name);
-		update();
+		maps.remove(map);
 	}
 
-	private void switchToMouseMap(int i)
+	private void switchToMap(Map map)
 	{
-		// map = GameManager.Cat.get(i).getMap();
+		mapPanel.setMap(map);
 		mapName.setText(map.name);
 		update();
 	}
@@ -217,6 +208,8 @@ public class DrawEngine extends JFrame
 	{
 		private static final long serialVersionUID = 1L;
 
+		public Map map;
+
 		private BufferedImage bufferedMap;
 		private Graphics2D graphic;
 
@@ -226,12 +219,14 @@ public class DrawEngine extends JFrame
 		*/
 		private ArrayList<BufferedImage> sprites;
 
-		public MapPanel()
+		public MapPanel(Map map)
 		{
+			this.map = map;
+
 			setPreferredSize(new Dimension(LevelGenerator.MAP_WIDTH*TILE_SIZE,
 					LevelGenerator.MAP_HEIGHT*TILE_SIZE));
 
-			/*init buffered Map */
+			/*init buffered run_mouse_run.Map */
 			bufferedMap = new BufferedImage(LevelGenerator.MAP_WIDTH*TILE_SIZE,
 					LevelGenerator.MAP_HEIGHT*TILE_SIZE,
 					BufferedImage.TYPE_BYTE_INDEXED);
@@ -246,7 +241,10 @@ public class DrawEngine extends JFrame
 			bufferCharacters();
 		}
 
-
+		public void setMap(Map map)
+		{
+			this.map = map;
+		}
 
 		private void loadSprites()
 		{
@@ -362,7 +360,7 @@ public class DrawEngine extends JFrame
 
 		private void bufferMap()
 		{
-        	/* Draw Map */
+        	/* Draw run_mouse_run.Map */
 			for (int i = 0; i < LevelGenerator.MAP_HEIGHT; i++) {
 				for (int j = 0; j < LevelGenerator.MAP_WIDTH; j++)
 				{
@@ -370,7 +368,7 @@ public class DrawEngine extends JFrame
 
 					switch (map.getTile(j, i)) {
 						case WALL:
-							// Draw Tile :  i for y (line) , j for x (column)
+							// Draw run_mouse_run.Tile :  i for y (line) , j for x (column)
 							graphic.setColor(Color.BLACK);
 							graphic.fillRect(j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE, TILE_SIZE);
 							break;
@@ -392,4 +390,4 @@ public class DrawEngine extends JFrame
 		}
 	} // End of MapPanel
 
-}	// End Of DrawEngine
+}	// End Of run_mouse_run.DrawEngine

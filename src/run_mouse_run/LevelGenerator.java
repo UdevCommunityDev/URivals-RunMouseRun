@@ -1,3 +1,5 @@
+package run_mouse_run;
+
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -114,7 +116,7 @@ public class LevelGenerator
     }
 
     /**
-     * compute path using PathFinder
+     * compute path using run_mouse_run.PathFinder
      * @return true if path exists
      */
     public boolean existPath(Position source, Position destination)
@@ -132,7 +134,7 @@ public class LevelGenerator
     * Generates a map random using Probability constants
      * @param mapHeight
      * @param mapWidth
-     * @return map (Tile[][]) , the generated map ( doesn't modify this class' map )
+     * @return map (Map) , the generated map ( doesn't modify this class' map )
     */
     private Map generateRandomMap(int mapWidth, int mapHeight)
     {
@@ -211,7 +213,7 @@ public class LevelGenerator
 
     /**
      * keep generating random x, y coordinates until getting an empty position
-     * @return an Empty Position
+     * @return an Empty run_mouse_run.Position
      */
     public Position getEmptyPos()
     {
