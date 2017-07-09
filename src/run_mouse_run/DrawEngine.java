@@ -43,7 +43,19 @@ public class DrawEngine extends JFrame
 	public DrawEngine(Map map)
 	{
 		maps = new ArrayList<>();
-		maps.add(map); // don't use addMap() because cmBox is null /// TODO : Check if empty
+		if(map == null)
+		{
+			map = new Map("Blank map", LevelGenerator.MAP_WIDTH, LevelGenerator.MAP_HEIGHT);
+
+			for(int i = 0; i < LevelGenerator.MAP_HEIGHT; i++)
+			{
+				for(int j = 0; j < LevelGenerator.MAP_WIDTH; j++)
+				{
+					map.setTile(j, i, Tile.NOT_DISCOVERED);
+				}
+			}
+		}
+		maps.add(map); // don't use addMap() because cmBox is null
 
 		pathFinder = new PathFinder();
 
@@ -128,7 +140,7 @@ public class DrawEngine extends JFrame
 			public void actionPerformed(ActionEvent arg0)
 			{
 				//pathFinder = new run_mouse_run.PathFinder();
-				mapPanel.drawPath(pathFinder.getShortestPath(map, initialPos, finalPos));
+				mapPanel.drawPath(pathFinder.getShortestPath(maps.get(0), initialPos, finalPos));
 			}
 		});
 		btnPanel.add(btnDrawShortest);
@@ -160,12 +172,19 @@ public class DrawEngine extends JFrame
 		newMapButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DrawEngine newFrame = new DrawEngine(map);
+				DrawEngine newFrame = new DrawEngine(maps);
 
 				newFrame.setVisible(true);
 			}
 		});
 		btnPanel.add(newMapButton);
+	}
+
+	public DrawEngine(ArrayList<Map> maps)
+	{
+		this(maps.get(0));
+		for(int i = 1; i < maps.size(); i++)
+			addMap(maps.get(i));
 	}
 
 	public void addMap(Map map)
@@ -213,7 +232,7 @@ public class DrawEngine extends JFrame
 		setContentPane(contentPane);
 	}
 
-	public void update()
+	public void update() /// TODO : draw cat computed path
 	{
 		mapPanel.clear();
 		mapPanel.repaint();
