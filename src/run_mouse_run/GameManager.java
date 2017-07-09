@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 
-public class GameManager
+public class GameManager   /// TODO : access GameManager with static Vs references
 {
     public static final int CATS_NUMBER = 2;
     public static final int MOUSES_NUMBER = 1;
